@@ -10,7 +10,20 @@
     ],
     "frameworksBackend": {
       "region": "us-central1"
-    }
-  },
-  "predeploy": ["npm run build:prod"]
+    },
+    "predeploy": ["npm run build:prod"],
+    "trailingSlash": false,
+    "cleanUrls": true,
+    "headers": [
+      {
+        "source": "**/*",
+        "headers": [
+          {
+            "key": "Cache-Control",
+            "value": "max-age=0, no-cache"
+          }
+        ]
+      }
+    ]
+  }
 }

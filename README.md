@@ -26,3 +26,14 @@ The application is configured to deploy to Firebase Hosting. Here's how to deplo
 - Firebase will use the production environment variables defined in `.env.production`
 
 This ensures that the production version with the correct API endpoint (`https://engine.tanfishmarket.com`) is deployed to Firebase.
+
+### SPA Routing on Firebase
+
+The application uses client-side routing with React Router. Special configuration has been added to ensure routes like `/privacy-policy` work properly when accessed directly:
+
+- Configured Firebase routing with proper `rewrites` and `cleanUrls` settings
+- Added SPA redirect script in index.html
+- Created 404.html page with redirect logic for direct route access
+- Added \_redirects file for additional route handling
+
+To deploy with these SPA routing fixes, use the enhanced deployment script: `npm run deploy`
