@@ -1,26 +1,28 @@
-import { configureStore } from '@reduxjs/toolkit';
-import { persistStore, persistReducer } from 'redux-persist';
-import storage from 'redux-persist/lib/storage';
-import { combineReducers } from 'redux';
+import { configureStore } from "@reduxjs/toolkit";
+import { combineReducers } from "redux";
+import { persistReducer, persistStore } from "redux-persist";
+import storage from "redux-persist/lib/storage";
 
-import authReducer from './slices/authSlice';
-import productsReducer from './slices/productsSlice';
-import cartReducer from './slices/cartSlice';
-import wishlistReducer from './slices/wishlistSlice';
-import ordersReducer from './slices/ordersSlice';
+import authReducer from "./slices/authSlice";
+import cartReducer from "./slices/cartSlice";
+import ordersReducer from "./slices/ordersSlice";
+import productsReducer from "./slices/productsSlice";
+import websocketReducer from "./slices/websocketSlice";
+import wishlistReducer from "./slices/wishlistSlice";
 
 const persistConfig = {
-  key: 'root',
+  key: "root",
   storage,
-  whitelist: ['auth', 'cart', 'wishlist'] // Only persist these reducers
+  whitelist: ["auth", "cart", "wishlist"], // Only persist these reducers
 };
 
 const rootReducer = combineReducers({
   auth: authReducer,
   products: productsReducer,
+  websocket: websocketReducer,
   cart: cartReducer,
   wishlist: wishlistReducer,
-  orders: ordersReducer
+  orders: ordersReducer,
 });
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);
@@ -31,7 +33,7 @@ export const store = configureStore({
     getDefaultMiddleware({
       serializableCheck: {
         // Ignore these action types
-        ignoredActions: ['persist/PERSIST', 'persist/REHYDRATE'],
+        ignoredActions: ["persist/PERSIST", "persist/REHYDRATE"],
       },
     }),
 });

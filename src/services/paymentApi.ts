@@ -1,8 +1,6 @@
 import axios from "axios";
 
-const PAYMENT_API_BASE_URL = `${
-  import.meta.env.VITE_API_BASE_URL || "https://fishmarket.juafaida.com"
-}/v1`;
+const PAYMENT_API_BASE_URL = `${import.meta.env.VITE_API_BASE_URL}/v1`;
 
 const paymentApi = axios.create({
   baseURL: PAYMENT_API_BASE_URL,

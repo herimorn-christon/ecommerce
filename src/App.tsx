@@ -19,6 +19,7 @@ import ProfilePage from "./pages/ProfilePage";
 import WishlistPage from "./pages/WishlistPage";
 import { useAppDispatch, useAppSelector } from "./redux/hooks";
 import { fetchUserProfile } from "./redux/slices/authSlice";
+import { webSocketService } from "./services/webSocketService";
 
 // Protected route component
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
@@ -33,6 +34,16 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 
 function App() {
   const dispatch = useAppDispatch();
+
+  // Initialize WebSocket connection
+  useEffect(() => {
+    webSocketService.connect();
+
+    // Cleanup on unmount
+    return () => {
+      webSocketService.disconnect();
+    };
+  }, []);
 
   // Check if user is authenticated on app load
   useEffect(() => {

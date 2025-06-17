@@ -1,8 +1,7 @@
 import axios from "axios";
 
 // Create a proxy API instance for Tanfish Market
-const TANFISH_API_URL =
-  import.meta.env.VITE_API_BASE_URL || "https://fishmarket.juafaida.com";
+const TANFISH_API_URL = import.meta.env.VITE_API_BASE_URL;
 
 const apiProxy = axios.create({
   baseURL: TANFISH_API_URL,
