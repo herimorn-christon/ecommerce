@@ -40,7 +40,7 @@ const ProductDetailPage: React.FC = () => {
         <div className="mb-6">
           <Link
             to="/products"
-            className="inline-flex items-center text-blue-600 hover:text-blue-800 transition-colors"
+            className="inline-flex items-center text-primary-600 hover:text-primary-700 transition-colors"
           >
             <ArrowLeft size={18} className="mr-2" />
             <span className="font-medium">Back to Products</span>
@@ -76,7 +76,7 @@ const ProductDetailPage: React.FC = () => {
                     <h3 className="font-medium text-gray-900 mb-1 truncate">
                       {product.name}
                     </h3>
-                    <p className="text-lg font-semibold text-blue-600">
+                    <p className="text-lg font-semibold text-primary-600">
                       ${parseFloat(product.unitPrice).toFixed(2)}
                     </p>
                   </div>

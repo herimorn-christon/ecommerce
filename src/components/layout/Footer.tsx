@@ -12,7 +12,7 @@ import logo from "../../assets/logo/2.svg";
 
 const Footer: React.FC = () => {
   return (
-    <footer className="bg-blue-900 text-white pt-12 pb-6">
+    <footer className="bg-primary-700 text-white pt-12 pb-6">
       <div className="container mx-auto px-4">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {/* Brand and About */}

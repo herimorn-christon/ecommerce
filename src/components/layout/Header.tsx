@@ -1,11 +1,11 @@
-import React, { useState, useEffect, useRef } from "react";
+import { Heart, Menu, Search, ShoppingCart, User, X } from "lucide-react";
+import React, { useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { ShoppingCart, Heart, User, Menu, X, Search } from "lucide-react";
-import { useAppSelector, useAppDispatch } from "../../redux/hooks";
+import logo from "../../assets/logo/2.svg";
+import { useAppDispatch, useAppSelector } from "../../redux/hooks";
 import { logout } from "../../redux/slices/authSlice";
 import { searchProducts } from "../../redux/slices/productsSlice";
 import { fetchWishlist } from "../../redux/slices/wishlistSlice";
-import logo from "../../assets/logo/2.svg";
 
 const Header: React.FC = () => {
   const dispatch = useAppDispatch();
@@ -54,7 +54,7 @@ const Header: React.FC = () => {
   };
 
   return (
-    <header className="bg-gradient-to-r from-blue-900 to-blue-700 text-white shadow-md">
+    <header className="bg-gradient-to-r from-primary-600 to-primary-500 text-white shadow-md">
       <div className="container mx-auto px-4 py-3">
         <div className="flex items-center justify-between">
           <Link to="/" className="flex items-center space-x-2">
@@ -131,19 +131,19 @@ const Header: React.FC = () => {
                     <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-20">
                       <Link
                         to="/profile"
-                        className="block px-4 py-2 text-gray-800 hover:bg-blue-50"
+                        className="block px-4 py-2 text-gray-800 hover:bg-primary-50"
                       >
                         Profile
                       </Link>
                       <Link
                         to="/orders"
-                        className="block px-4 py-2 text-gray-800 hover:bg-blue-50"
+                        className="block px-4 py-2 text-gray-800 hover:bg-primary-50"
                       >
                         Orders
                       </Link>
                       <button
                         onClick={handleLogout}
-                        className="block w-full text-left px-4 py-2 text-gray-800 hover:bg-blue-50"
+                        className="block w-full text-left px-4 py-2 text-gray-800 hover:bg-primary-50"
                       >
                         Logout
                       </button>
@@ -154,7 +154,7 @@ const Header: React.FC = () => {
             ) : (
               <Link
                 to="/login"
-                className="bg-white text-blue-700 px-4 py-2 rounded-md font-medium hover:bg-blue-50 transition-colors"
+                className="bg-white text-primary-600 px-4 py-2 rounded-md font-medium hover:bg-primary-50 transition-colors"
               >
                 Login
               </Link>
@@ -188,10 +188,10 @@ const Header: React.FC = () => {
         </div>
 
         {isMenuOpen && (
-          <nav className="md:hidden mt-3 py-3 px-2 bg-blue-800 rounded-md">
+          <nav className="md:hidden mt-3 py-3 px-2 bg-primary-700 rounded-md">
             <Link
               to="/products"
-              className="block py-2 hover:bg-blue-700 px-2 rounded"
+              className="block py-2 hover:bg-primary-600 px-2 rounded"
               onClick={() => setIsMenuOpen(false)}
             >
               Products
@@ -201,7 +201,7 @@ const Header: React.FC = () => {
               <>
                 <Link
                   to="/wishlist"
-                  className="block py-2 hover:bg-blue-700 px-2 rounded"
+                  className="block py-2 hover:bg-primary-600 px-2 rounded"
                   onClick={() => setIsMenuOpen(false)}
                 >
                   <div className="flex items-center">
@@ -214,7 +214,7 @@ const Header: React.FC = () => {
 
                 <Link
                   to="/cart"
-                  className="block py-2 hover:bg-blue-700 px-2 rounded"
+                  className="block py-2 hover:bg-primary-600 px-2 rounded"
                   onClick={() => setIsMenuOpen(false)}
                 >
                   <div className="flex items-center">
@@ -227,7 +227,7 @@ const Header: React.FC = () => {
 
                 <Link
                   to="/profile"
-                  className="block py-2 hover:bg-blue-700 px-2 rounded"
+                  className="block py-2 hover:bg-primary-600 px-2 rounded"
                   onClick={() => setIsMenuOpen(false)}
                 >
                   <div className="flex items-center">
@@ -238,7 +238,7 @@ const Header: React.FC = () => {
 
                 <Link
                   to="/orders"
-                  className="block py-2 hover:bg-blue-700 px-2 rounded"
+                  className="block py-2 hover:bg-primary-600 px-2 rounded"
                   onClick={() => setIsMenuOpen(false)}
                 >
                   Orders
@@ -246,7 +246,7 @@ const Header: React.FC = () => {
 
                 <button
                   onClick={handleLogout}
-                  className="w-full text-left block py-2 hover:bg-blue-700 px-2 rounded"
+                  className="w-full text-left block py-2 hover:bg-primary-600 px-2 rounded"
                 >
                   Logout
                 </button>
