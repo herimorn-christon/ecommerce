@@ -10,8 +10,10 @@ import Footer from "./components/layout/Footer";
 import Header from "./components/layout/Header";
 import AuthPage from "./pages/AuthPage";
 import CartPage from "./pages/CartPage";
+import CheckoutPage from "./pages/CheckoutPage";
 import HomePage from "./pages/HomePage";
 import OrderCheckoutPage from "./pages/OrderCheckoutPage";
+import PaymentPage from "./pages/PaymentPage";
 import PrivacyPolicyPage from "./pages/PrivacyPolicyPage";
 import ProductDetailPage from "./pages/ProductDetailPage";
 import ProductsPage from "./pages/ProductsPage";
@@ -103,7 +105,23 @@ function App() {
               }
             />
             <Route
-              path="checkout/payment/:orderId"
+              path="/checkout"
+              element={
+                <ProtectedRoute>
+                  <CheckoutPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/checkout/payment"
+              element={
+                <ProtectedRoute>
+                  <PaymentPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/checkout/payment/:orderId"
               element={
                 <ProtectedRoute>
                   <OrderCheckoutPage />

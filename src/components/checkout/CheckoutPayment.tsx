@@ -1,5 +1,4 @@
 import React from "react";
-import { useAppSelector } from "../../redux/hooks";
 import PaymentProcessor from "../payment/PaymentProcessor";
 
 interface CheckoutPaymentProps {
@@ -7,6 +6,7 @@ interface CheckoutPaymentProps {
   amount: number;
   onSuccess: () => void;
   onCancel: () => void;
+  addressId?: string | null;
 }
 
 const CheckoutPayment: React.FC<CheckoutPaymentProps> = ({
@@ -14,9 +14,8 @@ const CheckoutPayment: React.FC<CheckoutPaymentProps> = ({
   amount,
   onSuccess,
   onCancel,
+  addressId,
 }) => {
-  const { isLoading } = useAppSelector((state) => state.orders);
-
   return (
     <div className="max-w-4xl mx-auto py-8">
       <div className="bg-white rounded-lg shadow-md p-6 mb-6">
@@ -59,6 +58,7 @@ const CheckoutPayment: React.FC<CheckoutPaymentProps> = ({
               orderId={orderId}
               onSuccess={onSuccess}
               onCancel={onCancel}
+              addressId={addressId}
             />
           </div>
         </div>

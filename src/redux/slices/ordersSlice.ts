@@ -1,8 +1,10 @@
-import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
-import orderService from '../../services/orderService';
-import paymentService from '../../services/paymentService';
-import addressService from '../../services/orderService';
-import { Order, Address, PaymentCallback } from '../../types';
+import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
+import {
+  default as addressService,
+  default as orderService,
+} from "../../services/orderService";
+import paymentService from "../../services/paymentService";
+import { Address, Order, PaymentCallback } from "../../types";
 
 export interface OrdersState {
   orders: Order[];
@@ -10,6 +12,8 @@ export interface OrdersState {
   addresses: Address[];
   isLoading: boolean;
   error: string | null;
+  paymentReference: string | null;
+  paymentStatus: "pending" | "success" | "failed" | null;
 }
 
 const initialState: OrdersState = {
@@ -17,28 +21,34 @@ const initialState: OrdersState = {
   selectedOrder: null,
   addresses: [],
   isLoading: false,
-  error: null
+  error: null,
+  paymentReference: null,
+  paymentStatus: null,
 };
 
 // Async thunks for orders
 export const fetchOrders = createAsyncThunk(
-  'orders/fetchOrders',
+  "orders/fetchOrders",
   async (_, { rejectWithValue }) => {
     try {
       return await orderService.getOrders();
     } catch (error: any) {
-      return rejectWithValue(error.response?.data?.message || 'Failed to fetch orders');
+      return rejectWithValue(
+        error.response?.data?.message || "Failed to fetch orders"
+      );
     }
   }
 );
 
 export const fetchOrderById = createAsyncThunk(
-  'orders/fetchOrderById',
+  "orders/fetchOrderById",
   async (orderId: string, { rejectWithValue }) => {
     try {
       return await orderService.getOrderById(orderId);
     } catch (error: any) {
-      return rejectWithValue(error.response?.data?.message || 'Failed to fetch order details');
+      return rejectWithValue(
+        error.response?.data?.message || "Failed to fetch order details"
+      );
     }
   }
 );
@@ -47,6 +57,7 @@ export const fetchOrderById = createAsyncThunk(
 interface CreateOrderData {
   items: { productId: string; quantity: number }[];
   deliveryOption: string;
+  transactionId: string;
   paymentMethod: string;
   paymentDetails: {
     provider: string;
@@ -58,65 +69,70 @@ interface CreateOrderData {
 }
 
 export const createOrder = createAsyncThunk(
-  'orders/createOrder',
+  "orders/createOrder",
   async (orderData: CreateOrderData, { rejectWithValue }) => {
-    console.log('Creating order with data:', orderData);  
+    console.log("Creating order with data:", orderData);
     try {
       // Validate transaction ID at root level
-      if (!orderData.transactionId || typeof orderData.transactionId !== 'string') {
-        throw new Error('Transaction ID must be a valid string');
+      if (
+        !orderData.transactionId ||
+        typeof orderData.transactionId !== "string"
+      ) {
+        throw new Error("Transaction ID must be a valid string");
       }
 
       // Log the validated order data
-      console.log('Creating order with validated data:', orderData);
+      console.log("Creating order with validated data:", orderData);
 
       const response = await orderService.createOrder(orderData);
       return response;
     } catch (error: any) {
-      console.error('Order creation failed:', {
+      console.error("Order creation failed:", {
         error,
-        orderData
+        orderData,
       });
-      return rejectWithValue(error.message || 'Failed to create order');
+      return rejectWithValue(error.message || "Failed to create order");
     }
   }
 );
 
 export const cancelOrder = createAsyncThunk(
-  'orders/cancelOrder',
+  "orders/cancelOrder",
   async (orderId: string, { rejectWithValue }) => {
     try {
       // Send status in the correct format
       const response = await orderService.cancelOrder({
         orderId,
-        status: 'cancelled' // Exactly match the expected value
+        status: "cancelled", // Exactly match the expected value
       });
       return response;
     } catch (error: any) {
-      console.error('Order cancellation failed:', error);
-      return rejectWithValue(error.response?.data?.message || 'Failed to cancel order');
+      console.error("Order cancellation failed:", error);
+      return rejectWithValue(
+        error.response?.data?.message || "Failed to cancel order"
+      );
     }
   }
 );
 
 // Address management
 export const fetchAddresses = createAsyncThunk(
-  'orders/fetchAddresses',
+  "orders/fetchAddresses",
   async (_, { rejectWithValue }) => {
     try {
       const response = await addressService.getAddresses();
-      console.log('Fetched addresses:', response);
+      console.log("Fetched addresses:", response);
       return response;
     } catch (error: any) {
-      console.error('Error fetching addresses:', error);
+      console.error("Error fetching addresses:", error);
       return rejectWithValue(error.message);
     }
   }
 );
 
 export const createAddress = createAsyncThunk(
-  'orders/createAddress',
-  async (addressData: Omit<Address, 'id' | 'userId'>, { rejectWithValue }) => {
+  "orders/createAddress",
+  async (addressData: Omit<Address, "id" | "userId">, { rejectWithValue }) => {
     try {
       const response = await addressService.createAddress(addressData);
       return response;
@@ -128,40 +144,46 @@ export const createAddress = createAsyncThunk(
 
 // Payment processing
 export const initiatePayment = createAsyncThunk(
-  'orders/initiatePayment',
+  "orders/initiatePayment",
   async (data: { amount: number; phone: string }, { rejectWithValue }) => {
     try {
       return await paymentService.initiatePayment(data.amount, data.phone);
     } catch (error: any) {
-      return rejectWithValue(error.response?.data?.message || 'Failed to initiate payment');
+      return rejectWithValue(
+        error.response?.data?.message || "Failed to initiate payment"
+      );
     }
   }
 );
 
 export const checkPaymentStatus = createAsyncThunk(
-  'orders/checkPaymentStatus',
+  "orders/checkPaymentStatus",
   async (reference: string, { rejectWithValue }) => {
     try {
       return await paymentService.checkPaymentStatus(reference);
     } catch (error: any) {
-      return rejectWithValue(error.response?.data?.message || 'Failed to check payment status');
+      return rejectWithValue(
+        error.response?.data?.message || "Failed to check payment status"
+      );
     }
   }
 );
 
 export const handlePaymentCallback = createAsyncThunk(
-  'orders/handlePaymentCallback',
+  "orders/handlePaymentCallback",
   async (callbackData: PaymentCallback, { rejectWithValue }) => {
     try {
       return await orderService.handlePaymentCallback(callbackData);
     } catch (error: any) {
-      return rejectWithValue(error.response?.data?.message || 'Failed to process payment callback');
+      return rejectWithValue(
+        error.response?.data?.message || "Failed to process payment callback"
+      );
     }
   }
 );
 
 const ordersSlice = createSlice({
-  name: 'orders',
+  name: "orders",
   initialState,
   reducers: {
     clearSelectedOrder: (state) => {
@@ -170,7 +192,7 @@ const ordersSlice = createSlice({
     clearPaymentData: (state) => {
       state.paymentReference = null;
       state.paymentStatus = null;
-    }
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -179,29 +201,35 @@ const ordersSlice = createSlice({
         state.isLoading = true;
         state.error = null;
       })
-      .addCase(fetchOrders.fulfilled, (state, action: PayloadAction<Order[]>) => {
-        state.isLoading = false;
-        state.orders = action.payload;
-      })
+      .addCase(
+        fetchOrders.fulfilled,
+        (state, action: PayloadAction<Order[]>) => {
+          state.isLoading = false;
+          state.orders = action.payload;
+        }
+      )
       .addCase(fetchOrders.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload as string;
       })
-      
+
       // Fetch order by ID
       .addCase(fetchOrderById.pending, (state) => {
         state.isLoading = true;
         state.error = null;
       })
-      .addCase(fetchOrderById.fulfilled, (state, action: PayloadAction<Order>) => {
-        state.isLoading = false;
-        state.selectedOrder = action.payload;
-      })
+      .addCase(
+        fetchOrderById.fulfilled,
+        (state, action: PayloadAction<Order>) => {
+          state.isLoading = false;
+          state.selectedOrder = action.payload;
+        }
+      )
       .addCase(fetchOrderById.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload as string;
       })
-      
+
       // Create order
       .addCase(createOrder.pending, (state) => {
         state.isLoading = true;
@@ -216,7 +244,7 @@ const ordersSlice = createSlice({
         state.isLoading = false;
         state.error = action.payload as string;
       })
-      
+
       // Cancel order
       .addCase(cancelOrder.pending, (state) => {
         state.isLoading = true;
@@ -225,17 +253,19 @@ const ordersSlice = createSlice({
       .addCase(cancelOrder.fulfilled, (state, action: PayloadAction<Order>) => {
         state.isLoading = false;
         if (state.selectedOrder) {
-          state.selectedOrder.status = 'cancelled';
+          state.selectedOrder.status = "cancelled";
         }
-        state.orders = state.orders.map(order => 
-          order.id === action.payload.id ? { ...order, status: 'cancelled' } : order
+        state.orders = state.orders.map((order) =>
+          order.id === action.payload.id
+            ? { ...order, status: "cancelled" }
+            : order
         );
       })
       .addCase(cancelOrder.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload as string;
       })
-      
+
       // Payment processing
       .addCase(initiatePayment.pending, (state) => {
         state.isLoading = true;
@@ -243,20 +273,20 @@ const ordersSlice = createSlice({
       })
       .addCase(initiatePayment.fulfilled, (state, action) => {
         state.isLoading = false;
-        state.paymentReference = action.payload.reference;
-        state.paymentStatus = 'pending';
+        state.paymentReference = action.payload.referenceId;
+        state.paymentStatus = "pending";
       })
       .addCase(initiatePayment.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload as string;
-        state.paymentStatus = 'failed';
+        state.paymentStatus = "failed";
       })
-      
+
       // Handle payment callback
       .addCase(handlePaymentCallback.fulfilled, (state, action) => {
-        state.paymentStatus = action.payload.transactionstatus;
+        state.paymentStatus = action.payload.success ? "success" : "failed";
       })
-      
+
       // Check payment status
       .addCase(checkPaymentStatus.pending, (state) => {
         state.isLoading = true;
@@ -264,13 +294,13 @@ const ordersSlice = createSlice({
       })
       .addCase(checkPaymentStatus.fulfilled, (state, action) => {
         state.isLoading = false;
-        state.paymentStatus = action.payload.status;
+        state.paymentStatus = action.payload.success ? "success" : "failed";
       })
       .addCase(checkPaymentStatus.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload as string;
       })
-      
+
       // Fetch addresses
       .addCase(fetchAddresses.pending, (state) => {
         state.isLoading = true;
@@ -285,7 +315,7 @@ const ordersSlice = createSlice({
         state.isLoading = false;
         state.error = action.payload as string;
       });
-  }
+  },
 });
 
 export const { clearSelectedOrder, clearPaymentData } = ordersSlice.actions;

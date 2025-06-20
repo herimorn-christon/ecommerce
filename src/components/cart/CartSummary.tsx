@@ -5,7 +5,7 @@ import { clearCart } from "../../redux/slices/cartSlice";
 import Button from "../common/Button";
 
 interface CartSummaryProps {
-  onCheckout: () => void;
+  onCheckout?: () => void;
 }
 
 const CartSummary: React.FC<CartSummaryProps> = ({ onCheckout }) => {
@@ -39,7 +39,11 @@ const CartSummary: React.FC<CartSummaryProps> = ({ onCheckout }) => {
       return;
     }
 
-    onCheckout();
+    if (onCheckout) {
+      onCheckout();
+    } else {
+      navigate("/checkout");
+    }
   };
 
   return (

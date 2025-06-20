@@ -80,6 +80,28 @@ class WebSocketService {
   public isConnected(): boolean {
     return this.socket?.connected || false;
   }
+
+  public emit(event: string, data: any): void {
+    if (this.socket && this.isConnected()) {
+      console.log(`📤 Emitting event: ${event}`, data);
+      this.socket.emit(event, data);
+    } else {
+      console.warn(`⚠️ Cannot emit ${event}: Socket not connected`);
+    }
+  }
+
+  public on(event: string, callback: (...args: any[]) => void): void {
+    if (this.socket) {
+      console.log(`🔄 Listening for event: ${event}`);
+      this.socket.on(event, callback);
+    }
+  }
+
+  public off(event: string, callback?: (...args: any[]) => void): void {
+    if (this.socket) {
+      this.socket.off(event, callback);
+    }
+  }
 }
 
 export const webSocketService = WebSocketService.getInstance();

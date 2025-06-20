@@ -1,5 +1,30 @@
 # Tanfish Market E-commerce
 
+## Key Features
+
+### Wishlist Functionality
+
+The application includes a local-first wishlist functionality where users can:
+
+- Add/remove products to/from their wishlist
+- View all wishlist items on a dedicated page
+- Add wishlist items directly to cart
+- Data persists across browser sessions using Redux Persist
+
+See [WISHLIST.md](./WISHLIST.md) for detailed documentation.
+
+### Payment Flow
+
+The checkout and payment process follows these steps:
+
+1. Cart → Checkout: Enter shipping information
+2. Checkout → Payment: Process mobile money payment
+3. Payment → Order Confirmation: Complete order and view details
+
+The payment system integrates with Azampay for mobile money transactions and uses WebSockets for real-time payment notifications.
+
+See [PAYMENT_FLOW.md](./PAYMENT_FLOW.md) for detailed documentation.
+
 ## Environment Variables
 
 The application uses different API endpoints depending on the environment:

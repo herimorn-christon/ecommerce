@@ -86,27 +86,69 @@ export interface CartItem {
 
 // Order types
 export interface OrderItem {
+  id?: string;
   productId: string;
   quantity: number;
+  unitPrice?: string;
+  orderId?: string;
+  createdAt?: string;
+  updatedAt?: string;
+  product?: {
+    id: string;
+    name: string;
+    images: ProductImage[];
+  };
 }
 
 export interface PaymentDetails {
   provider: string;
   phoneNumber: string;
+  transactionId: string;
+}
+
+export interface Transaction {
+  id: string;
+  phone: string;
+  operator: string;
+  provider: string;
+  status: string;
+  reference: string;
+  thirdPartyId?: string;
+  amount: string;
+  metadata?: {
+    transactionId: string;
+    [key: string]: any;
+  };
+  userId: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface OrderUser {
+  id: string;
+  name: string;
+  phoneNumber: string;
 }
 
 export interface Order {
   id: string;
-  items: OrderItem[];
+  orderNumber: string;
+  trackingNumber: string | null;
+  status: string;
   deliveryOption: string;
   paymentMethod: string;
   paymentDetails: PaymentDetails;
   addressId: string;
+  totalAmount: string;
   notes?: string;
-  status: string;
-  total: number;
+  transactionId: string;
+  userId: string;
   createdAt: string;
   updatedAt: string;
+  items: OrderItem[];
+  address?: Address;
+  user?: OrderUser;
+  transaction?: Transaction;
 }
 
 // Address types
@@ -146,9 +188,11 @@ export interface AzamPayConfig {
   merchantAccountNumber: string;
 }
 
+export type TransactionStatus = "success" | "failed" | "pending";
+
 export interface PaymentCallback {
   reference: string;
-  transactionstatus: "success" | "failed" | "pending";
+  transactionstatus: TransactionStatus;
   externalreference?: string;
   transaction?: {
     id: string;
@@ -158,7 +202,13 @@ export interface PaymentCallback {
     message?: string;
     created: string;
   };
-  message?: string;
+}
+
+export interface AzampayCallbackEvent {
+  message: string;
+  reference: string;
+  status: TransactionStatus;
+  transactionId: string;
 }
 
 export interface PaymentInitiationRequest {
