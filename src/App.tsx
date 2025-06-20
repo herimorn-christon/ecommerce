@@ -18,6 +18,7 @@ import PrivacyPolicyPage from "./pages/PrivacyPolicyPage";
 import ProductDetailPage from "./pages/ProductDetailPage";
 import ProductsPage from "./pages/ProductsPage";
 import ProfilePage from "./pages/ProfilePage";
+import SellerRegistrationPage from "./pages/SellerRegistrationPage";
 import WishlistPage from "./pages/WishlistPage";
 import { useAppDispatch, useAppSelector } from "./redux/hooks";
 import { fetchUserProfile } from "./redux/slices/authSlice";
@@ -65,6 +66,10 @@ function App() {
             <Route path="/" element={<HomePage />} />
             <Route path="/login" element={<AuthPage />} />
             <Route path="/register" element={<AuthPage />} />
+            <Route
+              path="/register-seller"
+              element={<SellerRegistrationPage />}
+            />
             <Route path="/verify-otp" element={<AuthPage />} />
             <Route path="/products" element={<ProductsPage />} />
             <Route path="/products/:id" element={<ProductDetailPage />} />

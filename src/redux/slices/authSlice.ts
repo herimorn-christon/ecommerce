@@ -26,15 +26,23 @@ const initialState: AuthState = {
 export const registerSeller = createAsyncThunk(
   "auth/registerSeller",
   async (
-    userData: { name: string; phoneNumber: string; email: string },
+    userData: {
+      name: string;
+      phoneNumber: string;
+      email: string;
+      sellerType: "individual" | "company" | "association";
+    },
     { rejectWithValue }
   ) => {
     try {
+      console.log("Register seller thunk with data:", userData);
       const response = await authService.registerSeller(userData);
-      return response;
+      console.log("Register seller response:", response);
+      return { ...response, phoneNumber: userData.phoneNumber };
     } catch (error: any) {
+      console.error("Register seller error:", error);
       return rejectWithValue(
-        error.response?.data?.message || "Registration failed"
+        error.response?.data?.message || "Seller registration failed"
       );
     }
   }
@@ -110,7 +118,8 @@ const authSlice = createSlice({
         (state, action: PayloadAction<any>) => {
           state.isLoading = false;
           state.otpSent = true;
-          state.tempPhoneNumber = action.payload.user.phoneNumber;
+          state.tempPhoneNumber = action.payload.phoneNumber;
+          console.log("Seller registration successful:", action.payload);
         }
       )
       .addCase(registerSeller.rejected, (state, action) => {

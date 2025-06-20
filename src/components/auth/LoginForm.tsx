@@ -86,6 +86,18 @@ const LoginForm: React.FC = () => {
               </button>
             </p>
           </div>
+          <div className="mt-2 text-center">
+            <p className="text-gray-600">
+              Want to sell your products?{" "}
+              <button
+                type="button"
+                onClick={() => navigate("/register-seller")}
+                className="text-blue-600 hover:text-blue-800 font-medium"
+              >
+                Register as Seller
+              </button>
+            </p>
+          </div>
         </form>
       </div>
     </div>
