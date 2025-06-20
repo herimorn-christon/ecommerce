@@ -1,56 +1,97 @@
-import React, { useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
-import { useAppDispatch, useAppSelector } from '../redux/hooks';
-import { fetchProductById, clearSelectedProduct } from '../redux/slices/productsSlice';
-import ProductDetails from '../components/products/ProductDetails';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft } from "lucide-react";
+import React, { useEffect } from "react";
+import { Link, useParams } from "react-router-dom";
+import ProductDetails from "../components/products/ProductDetails";
+import { useAppDispatch, useAppSelector } from "../redux/hooks";
+import {
+  clearSelectedProduct,
+  fetchProductById,
+  fetchRelatedProducts,
+} from "../redux/slices/productsSlice";
 
 const ProductDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const dispatch = useAppDispatch();
-  const { selectedProduct, isLoading, error } = useAppSelector(state => state.products);
-  
+  const { selectedProduct, isLoading, error, relatedProducts } = useAppSelector(
+    (state) => state.products
+  );
+
   useEffect(() => {
     if (id) {
       dispatch(fetchProductById(id));
     }
-    
+
     // Cleanup on unmount
     return () => {
       dispatch(clearSelectedProduct());
     };
   }, [dispatch, id]);
 
+  // Fetch related products when we have a selected product
+  useEffect(() => {
+    if (selectedProduct?.categoryId) {
+      dispatch(fetchRelatedProducts(selectedProduct.categoryId));
+    }
+  }, [dispatch, selectedProduct?.categoryId]);
+
   return (
     <div className="min-h-screen bg-gray-50 py-8">
       <div className="container mx-auto px-4 max-w-6xl">
         <div className="mb-6">
-          <Link to="/products" className="inline-flex items-center text-blue-600 hover:text-blue-800 transition-colors">
+          <Link
+            to="/products"
+            className="inline-flex items-center text-blue-600 hover:text-blue-800 transition-colors"
+          >
             <ArrowLeft size={18} className="mr-2" />
             <span className="font-medium">Back to Products</span>
           </Link>
         </div>
-        
-        <ProductDetails 
+
+        <ProductDetails
           product={selectedProduct}
           isLoading={isLoading}
           error={error}
         />
-        
+
         {selectedProduct && (
           <div className="mt-12 bg-white rounded-lg shadow-sm p-6">
-            <h2 className="text-xl font-bold text-gray-900 mb-6">Related Products</h2>
+            <h2 className="text-xl font-bold text-gray-900 mb-6">
+              Related Products
+            </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-              {/* This is a placeholder for related products */}
-              {[1, 2, 3, 4].map((i) => (
-                <div key={i} className="rounded-lg overflow-hidden border border-gray-200 bg-white hover:shadow-md transition-shadow">
-                  <div className="aspect-square bg-gray-100"></div>
-                  <div className="p-4">
-                    <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
-                    <div className="h-5 bg-gray-200 rounded w-1/2"></div>
+              {relatedProducts.map((product) => (
+                <Link
+                  key={product.id}
+                  to={`/products/${product.id}`}
+                  className="rounded-lg overflow-hidden border border-gray-200 bg-white hover:shadow-md transition-all group"
+                >
+                  <div className="aspect-square bg-gray-100 relative overflow-hidden">
+                    <img
+                      src={product.images[0]?.url || "/placeholder-image.jpg"}
+                      alt={product.name}
+                      className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-300"
+                    />
                   </div>
-                </div>
+                  <div className="p-4">
+                    <h3 className="font-medium text-gray-900 mb-1 truncate">
+                      {product.name}
+                    </h3>
+                    <p className="text-lg font-semibold text-blue-600">
+                      ${parseFloat(product.unitPrice).toFixed(2)}
+                    </p>
+                  </div>
+                </Link>
               ))}
+              {relatedProducts.length === 0 && !isLoading && (
+                <div className="col-span-full text-center py-8 text-gray-500">
+                  No related products found.
+                </div>
+              )}
+              {isLoading && (
+                <div className="col-span-full text-center py-8">
+                  <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-blue-600 border-r-transparent"></div>
+                </div>
+              )}
             </div>
           </div>
         )}

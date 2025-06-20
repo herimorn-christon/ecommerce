@@ -1,23 +1,23 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { ShoppingCart, Heart, User, Menu, X, Search } from 'lucide-react';
-import { useAppSelector, useAppDispatch } from '../../redux/hooks';
-import { logout } from '../../redux/slices/authSlice';
-import { searchProducts } from '../../redux/slices/productsSlice';
-import { fetchWishlist } from '../../redux/slices/wishlistSlice';
-import logo from '../../assets/logo/2.svg';
+import React, { useState, useEffect, useRef } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { ShoppingCart, Heart, User, Menu, X, Search } from "lucide-react";
+import { useAppSelector, useAppDispatch } from "../../redux/hooks";
+import { logout } from "../../redux/slices/authSlice";
+import { searchProducts } from "../../redux/slices/productsSlice";
+import { fetchWishlist } from "../../redux/slices/wishlistSlice";
+import logo from "../../assets/logo/2.svg";
 
 const Header: React.FC = () => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
 
-  const { isAuthenticated, user } = useAppSelector(state => state.auth);
-  const { items: cartItems } = useAppSelector(state => state.cart);
-  const wishlist = useAppSelector(state => state.wishlist);
+  const { isAuthenticated, user } = useAppSelector((state) => state.auth);
+  const { items: cartItems } = useAppSelector((state) => state.cart);
+  const wishlist = useAppSelector((state) => state.wishlist);
   const wishlistCount = wishlist?.count || 0;
 
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -36,13 +36,13 @@ const Header: React.FC = () => {
         setIsDropdownOpen(false);
       }
     };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   const handleLogout = () => {
     dispatch(logout());
-    navigate('/');
+    navigate("/");
     setIsDropdownOpen(false);
     setIsMenuOpen(false);
   };
@@ -50,7 +50,7 @@ const Header: React.FC = () => {
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     dispatch(searchProducts(searchTerm));
-    navigate('/products');
+    navigate("/products");
   };
 
   return (
@@ -63,7 +63,7 @@ const Header: React.FC = () => {
               alt="TanfishMarket Logo"
               className="h-8 w-auto filter brightness-0 invert"
             />
-            <span className="text-xl font-bold">TanfishMarket</span>
+            <span className="text-xl font-bold">TanFishMarket</span>
           </Link>
 
           <div className="hidden md:block flex-1 max-w-md mx-4">
@@ -85,13 +85,19 @@ const Header: React.FC = () => {
           </div>
 
           <nav className="hidden md:flex items-center space-x-6">
-            <Link to="/products" className="hover:text-blue-200 transition-colors">
+            <Link
+              to="/products"
+              className="hover:text-blue-200 transition-colors"
+            >
               Products
             </Link>
 
             {isAuthenticated ? (
               <>
-                <Link to="/wishlist" className="relative hover:text-blue-200 transition-colors">
+                <Link
+                  to="/wishlist"
+                  className="relative hover:text-blue-200 transition-colors"
+                >
                   <Heart size={20} />
                   {wishlistCount > 0 && (
                     <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
@@ -100,7 +106,10 @@ const Header: React.FC = () => {
                   )}
                 </Link>
 
-                <Link to="/cart" className="relative hover:text-blue-200 transition-colors">
+                <Link
+                  to="/cart"
+                  className="relative hover:text-blue-200 transition-colors"
+                >
                   <ShoppingCart size={20} />
                   {cartItems.length > 0 && (
                     <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
@@ -111,19 +120,25 @@ const Header: React.FC = () => {
 
                 <div className="relative" ref={dropdownRef}>
                   <button
-                    onClick={() => setIsDropdownOpen(prev => !prev)}
+                    onClick={() => setIsDropdownOpen((prev) => !prev)}
                     className="flex items-center space-x-1 hover:text-blue-200 transition-colors"
                   >
                     <User size={20} />
-                    <span>{user?.name || 'Account'}</span>
+                    <span>{user?.name || "Account"}</span>
                   </button>
 
                   {isDropdownOpen && (
                     <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-20">
-                      <Link to="/profile" className="block px-4 py-2 text-gray-800 hover:bg-blue-50">
+                      <Link
+                        to="/profile"
+                        className="block px-4 py-2 text-gray-800 hover:bg-blue-50"
+                      >
                         Profile
                       </Link>
-                      <Link to="/orders" className="block px-4 py-2 text-gray-800 hover:bg-blue-50">
+                      <Link
+                        to="/orders"
+                        className="block px-4 py-2 text-gray-800 hover:bg-blue-50"
+                      >
                         Orders
                       </Link>
                       <button
@@ -191,7 +206,9 @@ const Header: React.FC = () => {
                 >
                   <div className="flex items-center">
                     <Heart size={20} className="mr-2" />
-                    <span>Wishlist {wishlistCount > 0 && `(${wishlistCount})`}</span>
+                    <span>
+                      Wishlist {wishlistCount > 0 && `(${wishlistCount})`}
+                    </span>
                   </div>
                 </Link>
 
@@ -202,7 +219,9 @@ const Header: React.FC = () => {
                 >
                   <div className="flex items-center">
                     <ShoppingCart size={20} className="mr-2" />
-                    <span>Cart {cartItems.length > 0 && `(${cartItems.length})`}</span>
+                    <span>
+                      Cart {cartItems.length > 0 && `(${cartItems.length})`}
+                    </span>
                   </div>
                 </Link>
 

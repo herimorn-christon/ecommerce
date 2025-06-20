@@ -144,7 +144,7 @@ const Footer: React.FC = () => {
               <li className="flex items-start">
                 <MapPin className="mr-2 h-5 w-5 text-blue-300 mt-0.5" />
                 <span className="text-blue-200">
-                  123 Fish Street, Dar es Salaam, Tanzania
+                  CoICT, Kijitonyama, Dar es Salaam
                 </span>
               </li>
               <li className="flex items-center">
@@ -154,10 +154,10 @@ const Footer: React.FC = () => {
               <li className="flex items-center">
                 <Mail className="mr-2 h-5 w-5 text-blue-300" />
                 <a
-                  href="mailto:info@fishmarket.com"
+                  href="mailto:info@tanfishmarket.com"
                   className="text-blue-200 hover:text-white transition-colors"
                 >
-                  info@fishmarket.com
+                  info@tanfishmarket.com
                 </a>
               </li>
             </ul>
