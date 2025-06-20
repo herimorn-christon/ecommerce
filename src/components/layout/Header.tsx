@@ -1,4 +1,12 @@
-import { Heart, Menu, Search, ShoppingCart, User, X } from "lucide-react";
+import {
+  Heart,
+  LayoutDashboard,
+  Menu,
+  Search,
+  ShoppingCart,
+  User,
+  X,
+} from "lucide-react";
 import React, { useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import logo from "../../assets/logo/2.svg";
@@ -10,10 +18,13 @@ const Header: React.FC = () => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
 
-  const { isAuthenticated } = useAppSelector((state) => state.auth);
+  const { isAuthenticated, user } = useAppSelector((state) => state.auth);
   const { items: cartItems } = useAppSelector((state) => state.cart);
   const wishlist = useAppSelector((state) => state.wishlist);
   const wishlistCount = wishlist?.count || 0;
+
+  // Check if user has seller role
+  const isUserSeller = user?.roles?.includes("seller");
 
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
@@ -133,6 +144,14 @@ const Header: React.FC = () => {
                     >
                       Orders
                     </Link>
+                    {isUserSeller && (
+                      <Link
+                        to="/dashboard"
+                        className="block px-4 py-2 text-gray-800 hover:bg-primary-50"
+                      >
+                        Dashboard
+                      </Link>
+                    )}
                     <button
                       onClick={handleLogout}
                       className="block w-full text-left px-4 py-2 text-gray-800 hover:bg-primary-50"
@@ -237,6 +256,19 @@ const Header: React.FC = () => {
                 >
                   Orders
                 </Link>
+
+                {isUserSeller && (
+                  <Link
+                    to="/dashboard"
+                    className="block py-2 hover:bg-primary-600 px-2 rounded"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    <div className="flex items-center">
+                      <LayoutDashboard size={20} className="mr-2" />
+                      <span>Dashboard</span>
+                    </div>
+                  </Link>
+                )}
 
                 <button
                   onClick={handleLogout}

@@ -11,6 +11,7 @@ import Header from "./components/layout/Header";
 import AuthPage from "./pages/AuthPage";
 import CartPage from "./pages/CartPage";
 import CheckoutPage from "./pages/CheckoutPage";
+import DashboardPage from "./pages/DashboardPage";
 import HomePage from "./pages/HomePage";
 import OrderCheckoutPage from "./pages/OrderCheckoutPage";
 import PaymentPage from "./pages/PaymentPage";
@@ -130,6 +131,14 @@ function App() {
               element={
                 <ProtectedRoute>
                   <OrderCheckoutPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/dashboard"
+              element={
+                <ProtectedRoute>
+                  <DashboardPage />
                 </ProtectedRoute>
               }
             />
