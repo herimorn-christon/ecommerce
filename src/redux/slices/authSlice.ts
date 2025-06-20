@@ -1,6 +1,6 @@
-import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
-import authService from '../../services/authService';
-import { User, OtpVerificationRequest } from '../../types';
+import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
+import authService from "../../services/authService";
+import { OtpVerificationRequest, User } from "../../types";
 
 interface AuthState {
   user: User | null;
@@ -14,69 +14,75 @@ interface AuthState {
 
 const initialState: AuthState = {
   user: null,
-  token: localStorage.getItem('token'), // ✅ Load from storage
-  isAuthenticated: !!localStorage.getItem('token'),
+  token: localStorage.getItem("token"), // ✅ Load from storage
+  isAuthenticated: !!localStorage.getItem("token"),
   isLoading: false,
   error: null,
   otpSent: false,
-  tempPhoneNumber: null
+  tempPhoneNumber: null,
 };
 
 // Async thunks
 export const registerSeller = createAsyncThunk(
-  'auth/registerSeller',
-  async (userData: { name: string; phoneNumber: string; email: string }, { rejectWithValue }) => {
+  "auth/registerSeller",
+  async (
+    userData: { name: string; phoneNumber: string; email: string },
+    { rejectWithValue }
+  ) => {
     try {
       const response = await authService.registerSeller(userData);
       return response;
     } catch (error: any) {
-      return rejectWithValue(error.response?.data?.message || 'Registration failed');
+      return rejectWithValue(
+        error.response?.data?.message || "Registration failed"
+      );
     }
   }
 );
 
 export const loginWithPhone = createAsyncThunk(
-  'auth/loginWithPhone',
+  "auth/loginWithPhone",
   async (phoneNumber: string, { rejectWithValue }) => {
     try {
       const response = await authService.loginWithPhone(phoneNumber);
-      console.log('the comming response is', response);
       return { ...response, phoneNumber };
     } catch (error: any) {
-      return rejectWithValue(error.response?.data?.message || 'Login failed');
+      return rejectWithValue(error.response?.data?.message || "Login failed");
     }
   }
 );
 
 export const verifyOtp = createAsyncThunk(
-  'auth/verifyOtp',
+  "auth/verifyOtp",
   async (data: OtpVerificationRequest, { rejectWithValue }) => {
     try {
       const response = await authService.verifyOtp(data);
-      console.log('the otp response is', response);
       return response;
     } catch (error: any) {
-      return rejectWithValue(error.response?.data?.message || 'OTP verification failed');
+      return rejectWithValue(
+        error.response?.data?.message || "OTP verification failed"
+      );
     }
   }
 );
 
 export const fetchUserProfile = createAsyncThunk(
-  'auth/fetchUserProfile',
+  "auth/fetchUserProfile",
   async (_, { rejectWithValue }) => {
     try {
       const response = await authService.getProfile();
-      console.log('the fetch user profile is', response);
       return response;
     } catch (error: any) {
-      return rejectWithValue(error.response?.data?.message || 'Failed to fetch user profile');
+      return rejectWithValue(
+        error.response?.data?.message || "Failed to fetch user profile"
+      );
     }
   }
 );
 
 // Slice
 const authSlice = createSlice({
-  name: 'auth',
+  name: "auth",
   initialState,
   reducers: {
     logout: (state) => {
@@ -90,7 +96,7 @@ const authSlice = createSlice({
     },
     clearAuthError: (state) => {
       state.error = null;
-    }
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -99,11 +105,14 @@ const authSlice = createSlice({
         state.isLoading = true;
         state.error = null;
       })
-      .addCase(registerSeller.fulfilled, (state, action: PayloadAction<any>) => {
-        state.isLoading = false;
-        state.otpSent = true;
-        state.tempPhoneNumber = action.payload.user.phoneNumber;
-      })
+      .addCase(
+        registerSeller.fulfilled,
+        (state, action: PayloadAction<any>) => {
+          state.isLoading = false;
+          state.otpSent = true;
+          state.tempPhoneNumber = action.payload.user.phoneNumber;
+        }
+      )
       .addCase(registerSeller.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload as string;
@@ -114,11 +123,14 @@ const authSlice = createSlice({
         state.isLoading = true;
         state.error = null;
       })
-      .addCase(loginWithPhone.fulfilled, (state, action: PayloadAction<any>) => {
-        state.isLoading = false;
-        state.otpSent = true;
-        state.tempPhoneNumber = action.payload.phoneNumber;
-      })
+      .addCase(
+        loginWithPhone.fulfilled,
+        (state, action: PayloadAction<any>) => {
+          state.isLoading = false;
+          state.otpSent = true;
+          state.tempPhoneNumber = action.payload.phoneNumber;
+        }
+      )
       .addCase(loginWithPhone.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload as string;
@@ -131,7 +143,7 @@ const authSlice = createSlice({
       })
       .addCase(verifyOtp.fulfilled, (state, action: PayloadAction<any>) => {
         const { accessToken, user } = action.payload;
-        localStorage.setItem('token', accessToken); // ✅ persist token
+        localStorage.setItem("token", accessToken); // ✅ persist token
 
         state.token = accessToken; // ✅ store in Redux
         state.user = user;
@@ -150,15 +162,18 @@ const authSlice = createSlice({
         state.isLoading = true;
         state.error = null;
       })
-      .addCase(fetchUserProfile.fulfilled, (state, action: PayloadAction<User>) => {
-        state.isLoading = false;
-        state.user = action.payload;
-      })
+      .addCase(
+        fetchUserProfile.fulfilled,
+        (state, action: PayloadAction<User>) => {
+          state.isLoading = false;
+          state.user = action.payload;
+        }
+      )
       .addCase(fetchUserProfile.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload as string;
       });
-  }
+  },
 });
 
 export const { logout, clearAuthError } = authSlice.actions;

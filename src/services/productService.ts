@@ -1,8 +1,8 @@
-import api from './api';
+import api from "./api";
 
 const productService = {
   getCategories: async () => {
-    const response = await api.get('/categories');
+    const response = await api.get("/categories");
     return response.data;
   },
 
@@ -12,7 +12,7 @@ const productService = {
   },
 
   getProducts: async () => {
-    const response = await api.get('/products');
+    const response = await api.get("/products");
     return response.data;
   },
 
@@ -27,31 +27,11 @@ const productService = {
   },
 
   getMyProducts: async () => {
-    const response = await api.get('/products/me');
+    const response = await api.get("/products/me");
     return response.data;
   },
 
-  // Wishlist operations
-  addToWishlist: async (productId: string) => {
-    const response = await api.post('/wishlist', { productId });
-    return response.data;
-  },
-
-  removeFromWishlist: async (productId: string) => {
-    try {
-      const response = await api.delete(`/wishlist/${productId}`);
-      console.log('Remove from wishlist response:', response.data);
-      return response.data;
-    } catch (error) {
-      console.error('Error removing from wishlist:', error);
-      throw error;
-    }
-  },
-
-  getWishlist: async () => {
-    const response = await api.get('/wishlist');
-    return response.data;  // Make sure this returns the full array of wishlist items
-  }
+  // Wishlist operations are handled locally with Redux
 };
 
 export default productService;

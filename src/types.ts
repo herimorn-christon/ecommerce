@@ -1,6 +1,6 @@
 export interface WishlistItem {
   productId: string;
-  // ...any other fields your API returns
+  product: Product;
 }
 
 // User types
@@ -138,14 +138,6 @@ export interface PaymentResponse {
   reference?: string;
 }
 
-// Wishlist types
-export interface WishlistItem {
-  id: string;
-  productId: string;
-  product: Product;
-  userId: string;
-  createdAt: string;
-}
 // Add these interfaces to your existing types file
 
 export interface AzamPayConfig {

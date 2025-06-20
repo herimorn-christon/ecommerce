@@ -1,12 +1,19 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Heart, ShoppingCart, ArrowLeft, Truck, ShieldCheck, RefreshCw } from 'lucide-react';
-import { Product } from '../../types';
-import { useAppDispatch } from '../../redux/hooks';
-import { addToCart } from '../../redux/slices/cartSlice';
-import { addProductToWishlist } from '../../redux/slices/wishlistSlice';
-import Button from '../common/Button';
-import LoadingSpinner from '../common/LoadingSpinner';
+import {
+  ArrowLeft,
+  Heart,
+  RefreshCw,
+  ShieldCheck,
+  ShoppingCart,
+  Truck,
+} from "lucide-react";
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAppDispatch } from "../../redux/hooks";
+import { addToCart } from "../../redux/slices/cartSlice";
+import { addToWishlist } from "../../redux/slices/wishlistSlice";
+import { Product } from "../../types";
+import Button from "../common/Button";
+import LoadingSpinner from "../common/LoadingSpinner";
 
 interface ProductDetailsProps {
   product: Product | null;
@@ -14,7 +21,11 @@ interface ProductDetailsProps {
   error: string | null;
 }
 
-const ProductDetails: React.FC<ProductDetailsProps> = ({ product, isLoading, error }) => {
+const ProductDetails: React.FC<ProductDetailsProps> = ({
+  product,
+  isLoading,
+  error,
+}) => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const [quantity, setQuantity] = useState(1);
@@ -23,32 +34,37 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product, isLoading, err
   const handleAddToCart = () => {
     if (product) {
       dispatch(addToCart({ product, quantity }));
-      navigate('/cart');
+      navigate("/cart");
     }
   };
 
   const handleAddToWishlist = () => {
     if (product) {
-      dispatch(addProductToWishlist(product.id));
+      dispatch(addToWishlist({ product }));
     }
   };
 
   const handleQuantityChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = parseInt(e.target.value);
-    if (!isNaN(value) && value > 0 && product && value <= product.availableQuantity) {
+    if (
+      !isNaN(value) &&
+      value > 0 &&
+      product &&
+      value <= product.availableQuantity
+    ) {
       setQuantity(value);
     }
   };
 
   const incrementQuantity = () => {
     if (product && quantity < product.availableQuantity) {
-      setQuantity(prev => prev + 1);
+      setQuantity((prev) => prev + 1);
     }
   };
 
   const decrementQuantity = () => {
     if (quantity > 1) {
-      setQuantity(prev => prev - 1);
+      setQuantity((prev) => prev - 1);
     }
   };
 
@@ -72,8 +88,8 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product, isLoading, err
     return (
       <div className="bg-blue-50 border border-blue-200 text-blue-700 px-4 py-8 rounded text-center">
         <p className="text-lg font-medium">Product not found</p>
-        <button 
-          onClick={() => navigate('/products')}
+        <button
+          onClick={() => navigate("/products")}
           className="mt-4 inline-flex items-center text-blue-600 hover:text-blue-800"
         >
           <ArrowLeft size={16} className="mr-1" /> Back to products
@@ -86,8 +102,8 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product, isLoading, err
 
   return (
     <div className="bg-white rounded-lg shadow-md p-6">
-      <button 
-        onClick={() => navigate('/products')}
+      <button
+        onClick={() => navigate("/products")}
         className="inline-flex items-center text-blue-600 hover:text-blue-800 mb-6"
       >
         <ArrowLeft size={16} className="mr-1" /> Back to products
@@ -96,11 +112,14 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product, isLoading, err
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         {/* Product Images */}
         <div>
-          <div className="mb-4 relative rounded-lg overflow-hidden bg-gray-100" style={{ height: '350px' }}>
+          <div
+            className="mb-4 relative rounded-lg overflow-hidden bg-gray-100"
+            style={{ height: "350px" }}
+          >
             {product.images?.length ? (
-              <img 
-                src={product.images[activeImageIndex].url} 
-                alt={product.name} 
+              <img
+                src={product.images[activeImageIndex].url}
+                alt={product.name}
                 className="w-full h-full object-cover"
               />
             ) : (
@@ -124,12 +143,14 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product, isLoading, err
                   key={image.id}
                   onClick={() => setActiveImageIndex(index)}
                   className={`w-20 h-20 rounded-md overflow-hidden flex-shrink-0 border-2 ${
-                    index === activeImageIndex ? 'border-blue-500' : 'border-transparent'
+                    index === activeImageIndex
+                      ? "border-blue-500"
+                      : "border-transparent"
                   }`}
                 >
-                  <img 
-                    src={image.url} 
-                    alt={`${product.name} ${index + 1}`} 
+                  <img
+                    src={image.url}
+                    alt={`${product.name} ${index + 1}`}
                     className="w-full h-full object-cover"
                   />
                 </button>
@@ -151,7 +172,9 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product, isLoading, err
             </span>
           </div>
 
-          <h1 className="text-3xl font-bold text-gray-800 mb-2">{product.name}</h1>
+          <h1 className="text-3xl font-bold text-gray-800 mb-2">
+            {product.name}
+          </h1>
 
           <div className="text-2xl font-bold text-blue-700 mb-4">
             TZS {Number(product.unitPrice).toLocaleString()}
@@ -161,19 +184,23 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product, isLoading, err
 
           <div className="mb-6 space-y-2">
             <p className="text-gray-700">
-              <span className="font-medium">Availability:</span>{' '}
+              <span className="font-medium">Availability:</span>{" "}
               {isOutOfStock ? (
                 <span className="text-red-600">Out of Stock</span>
               ) : (
-                <span className="text-green-600">{product.availableQuantity} in stock</span>
+                <span className="text-green-600">
+                  {product.availableQuantity} in stock
+                </span>
               )}
             </p>
             <p className="text-gray-700">
-              <span className="font-medium">Storage Type:</span> {product.storageType}
+              <span className="font-medium">Storage Type:</span>{" "}
+              {product.storageType}
             </p>
             {product.seller?.name && (
               <p className="text-gray-700">
-                <span className="font-medium">Seller:</span> {product.seller.name}
+                <span className="font-medium">Seller:</span>{" "}
+                {product.seller.name}
               </p>
             )}
           </div>
@@ -183,7 +210,7 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product, isLoading, err
             <div className="flex items-center mb-6">
               <span className="text-gray-700 mr-4">Quantity:</span>
               <div className="flex items-center border border-gray-300 rounded-md">
-                <button 
+                <button
                   onClick={decrementQuantity}
                   className="px-3 py-1 text-gray-600 hover:bg-gray-100"
                   disabled={quantity <= 1}
@@ -198,7 +225,7 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product, isLoading, err
                   onChange={handleQuantityChange}
                   className="w-12 text-center py-1 border-0 focus:ring-0"
                 />
-                <button 
+                <button
                   onClick={incrementQuantity}
                   className="px-3 py-1 text-gray-600 hover:bg-gray-100"
                   disabled={quantity >= product.availableQuantity}
@@ -233,25 +260,42 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product, isLoading, err
           {/* Additional info */}
           <div className="mt-8 grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div className="flex items-start">
-              <Truck className="text-blue-600 mr-2 flex-shrink-0 mt-0.5" size={18} />
+              <Truck
+                className="text-blue-600 mr-2 flex-shrink-0 mt-0.5"
+                size={18}
+              />
               <div>
-                <p className="text-sm font-medium text-gray-700">Fast Delivery</p>
-                <p className="text-xs text-gray-500">Deliver to your doorstep</p>
+                <p className="text-sm font-medium text-gray-700">
+                  Fast Delivery
+                </p>
+                <p className="text-xs text-gray-500">
+                  Deliver to your doorstep
+                </p>
               </div>
             </div>
 
             <div className="flex items-start">
-              <ShieldCheck className="text-blue-600 mr-2 flex-shrink-0 mt-0.5" size={18} />
+              <ShieldCheck
+                className="text-blue-600 mr-2 flex-shrink-0 mt-0.5"
+                size={18}
+              />
               <div>
-                <p className="text-sm font-medium text-gray-700">Quality Guarantee</p>
+                <p className="text-sm font-medium text-gray-700">
+                  Quality Guarantee
+                </p>
                 <p className="text-xs text-gray-500">Fresh and high-quality</p>
               </div>
             </div>
 
             <div className="flex items-start">
-              <RefreshCw className="text-blue-600 mr-2 flex-shrink-0 mt-0.5" size={18} />
+              <RefreshCw
+                className="text-blue-600 mr-2 flex-shrink-0 mt-0.5"
+                size={18}
+              />
               <div>
-                <p className="text-sm font-medium text-gray-700">Easy Returns</p>
+                <p className="text-sm font-medium text-gray-700">
+                  Easy Returns
+                </p>
                 <p className="text-xs text-gray-500">30-day return policy</p>
               </div>
             </div>

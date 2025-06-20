@@ -1,31 +1,27 @@
-import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
-import { useAppDispatch, useAppSelector } from '../redux/hooks';
-import {
-  fetchWishlist,
-  removeProductFromWishlist,
-} from '../redux/slices/wishlistSlice';
-import { addToCart } from '../redux/slices/cartSlice';
-import { fetchProductById } from '../redux/slices/productsSlice';
-import LoadingSpinner from '../components/common/LoadingSpinner';
-import Button from '../components/common/Button';
-import EmptyState from '../components/common/EmptyState';
-import { Heart, ShoppingCart, Trash2, ArrowLeft } from 'lucide-react';
-import { Product } from '../types';
+import { ArrowLeft, Heart, ShoppingCart, Trash2 } from "lucide-react";
+import React, { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
+import Button from "../components/common/Button";
+import EmptyState from "../components/common/EmptyState";
+import LoadingSpinner from "../components/common/LoadingSpinner";
+import { useAppDispatch, useAppSelector } from "../redux/hooks";
+import { addToCart } from "../redux/slices/cartSlice";
+import { fetchProductById } from "../redux/slices/productsSlice";
+import { removeFromWishlist } from "../redux/slices/wishlistSlice";
+import { Product } from "../types";
 
 const WishlistPage: React.FC = () => {
   const dispatch = useAppDispatch();
-  const { items, isLoading: wishlistLoading, error } = useAppSelector(state => state.wishlist);
-  const { isAuthenticated } = useAppSelector(state => state.auth);
+  const { items } = useAppSelector((state) => state.wishlist);
+  const { isAuthenticated } = useAppSelector((state) => state.auth);
 
   const [wishlistProducts, setWishlistProducts] = useState<Product[]>([]);
-  console.log('Wishlist product:',wishlistProducts ); // Log the current wishlist items  
+  console.log("Wishlist product:", wishlistProducts); // Log the current wishlist items
   const [productLoading, setProductLoading] = useState(false);
 
   useEffect(() => {
-    if (isAuthenticated) {
-      dispatch(fetchWishlist());
-    } else {
+    // We no longer need to fetch the wishlist as it's stored locally
+    if (!isAuthenticated) {
       setWishlistProducts([]);
     }
   }, [dispatch, isAuthenticated]);
@@ -41,18 +37,19 @@ const WishlistPage: React.FC = () => {
       setProductLoading(true);
       try {
         const results = await Promise.all(
-          items.map(async item => {
-            const result = await dispatch(fetchProductById(item.productId)).unwrap();
+          items.map(async (item) => {
+            const result = await dispatch(
+              fetchProductById(item.productId)
+            ).unwrap();
             return result;
           })
         );
-        
+
         // Filter out any undefined/null results
         const validProducts = results.filter(Boolean);
         setWishlistProducts(validProducts);
-        
       } catch (err) {
-        console.error('Error fetching wishlist products:', err);
+        console.error("Error fetching wishlist products:", err);
         setWishlistProducts([]);
       } finally {
         setProductLoading(false);
@@ -63,28 +60,25 @@ const WishlistPage: React.FC = () => {
   }, [items, dispatch]);
 
   // Update the handleRemoveFromWishlist function
-  const handleRemoveFromWishlist = async (productId: string) => {
-    try {
-      // First remove from API/Redux store
-      await dispatch(removeProductFromWishlist(productId)).unwrap();
-      
-      // Then update local state
-      setWishlistProducts(prevProducts => {
-        const updatedProducts = prevProducts.filter(p => p.id !== productId);
-        return updatedProducts;
-      });
+  const handleRemoveFromWishlist = (productId: string) => {
+    // Remove from local Redux store
+    dispatch(removeFromWishlist(productId));
 
-      // Trigger wishlist refresh
-      dispatch(fetchWishlist());
-      
+    // Update local state
+    setWishlistProducts((prevProducts) => {
+      const updatedProducts = prevProducts.filter((p) => p.id !== productId);
+      return updatedProducts;
+    });
+
+    try {
+      // No API calls needed anymore
     } catch (error) {
-      console.error('Failed to remove from wishlist:', error);
+      console.error("Failed to remove from wishlist:", error);
     }
   };
 
-
   const handleAddToCart = (productId: string) => {
-    const product = wishlistProducts.find(p => p.id === productId);
+    const product = wishlistProducts.find((p) => p.id === productId);
     if (product) {
       dispatch(addToCart({ product, quantity: 1 }));
     }
@@ -107,18 +101,10 @@ const WishlistPage: React.FC = () => {
   }
 
   const renderContent = () => {
-    if (wishlistLoading || productLoading) {
+    if (productLoading) {
       return (
         <div className="flex justify-center py-10">
           <LoadingSpinner size="large" />
-        </div>
-      );
-    }
-
-    if (error) {
-      return (
-        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
-          {error}
         </div>
       );
     }
@@ -139,13 +125,17 @@ const WishlistPage: React.FC = () => {
       <div className="bg-white rounded-lg shadow-md overflow-hidden">
         <div className="p-6 border-b border-gray-200">
           <p className="text-gray-600">
-            {wishlistProducts.length} item{wishlistProducts.length > 1 ? 's' : ''} in your wishlist
+            {wishlistProducts.length} item
+            {wishlistProducts.length > 1 ? "s" : ""} in your wishlist
           </p>
         </div>
 
         <div className="divide-y divide-gray-200">
-          {wishlistProducts.map(product => (
-            <div key={product.id} className="p-6 flex flex-col md:flex-row md:items-center relative">
+          {wishlistProducts.map((product) => (
+            <div
+              key={product.id}
+              className="p-6 flex flex-col md:flex-row md:items-center relative"
+            >
               {/* Sold Out Badge */}
               {product.availableQuantity <= 0 && (
                 <span className="absolute top-2 right-2 bg-red-600 text-white text-xs font-semibold px-2 py-1 rounded">
@@ -155,7 +145,7 @@ const WishlistPage: React.FC = () => {
 
               <div className="md:w-1/6 mb-4 md:mb-0">
                 <img
-                  src={product?.images?.[0]?.url ?? '/placeholder.jpg'}
+                  src={product?.images?.[0]?.url ?? "/placeholder.jpg"}
                   alt={product.name}
                   className="w-full h-32 object-cover rounded-md"
                 />
@@ -171,7 +161,7 @@ const WishlistPage: React.FC = () => {
                 <p className="text-gray-600 mt-1">
                   {product.description
                     ? `${product.description.substring(0, 100)}...`
-                    : 'No description available.'}
+                    : "No description available."}
                 </p>
                 <div className="mt-2 text-xl font-bold text-blue-700">
                   {product.unitPrice}
@@ -179,7 +169,7 @@ const WishlistPage: React.FC = () => {
                 <div className="mt-1 text-sm text-gray-500">
                   {product.availableQuantity > 0
                     ? `${product.availableQuantity} in stock`
-                    : 'Out of stock'}
+                    : "Out of stock"}
                 </div>
               </div>
 
@@ -195,14 +185,18 @@ const WishlistPage: React.FC = () => {
                 </Button>
 
                 <Button
-                  variant={product.availableQuantity > 0 ? 'primary' : 'disabled'}
+                  variant={
+                    product.availableQuantity > 0 ? "primary" : "outline"
+                  }
                   size="small"
                   onClick={() => handleAddToCart(product.id)}
                   disabled={product.availableQuantity <= 0}
                   className="flex items-center justify-center"
                 >
                   <ShoppingCart size={16} className="mr-1" />
-                  {product.availableQuantity > 0 ? 'Add to Cart' : 'Unavailable'}
+                  {product.availableQuantity > 0
+                    ? "Add to Cart"
+                    : "Unavailable"}
                 </Button>
               </div>
             </div>

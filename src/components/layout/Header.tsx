@@ -5,13 +5,12 @@ import logo from "../../assets/logo/2.svg";
 import { useAppDispatch, useAppSelector } from "../../redux/hooks";
 import { logout } from "../../redux/slices/authSlice";
 import { searchProducts } from "../../redux/slices/productsSlice";
-import { fetchWishlist } from "../../redux/slices/wishlistSlice";
 
 const Header: React.FC = () => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
 
-  const { isAuthenticated, user } = useAppSelector((state) => state.auth);
+  const { isAuthenticated } = useAppSelector((state) => state.auth);
   const { items: cartItems } = useAppSelector((state) => state.cart);
   const wishlist = useAppSelector((state) => state.wishlist);
   const wishlistCount = wishlist?.count || 0;
@@ -21,11 +20,10 @@ const Header: React.FC = () => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
+  // We no longer need to fetch wishlist as it's stored locally
   useEffect(() => {
-    if (isAuthenticated) {
-      dispatch(fetchWishlist());
-    }
-  }, [isAuthenticated, dispatch]);
+    // Wishlist is now handled locally through Redux and persisted to storage
+  }, []);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -85,78 +83,72 @@ const Header: React.FC = () => {
           </div>
 
           <nav className="hidden md:flex items-center space-x-6">
+            {/* Always visible icons */}
             <Link
-              to="/products"
-              className="hover:text-blue-200 transition-colors"
+              to="/wishlist"
+              className="relative hover:text-blue-200 transition-colors"
             >
-              Products
+              <Heart size={20} />
+              {wishlistCount > 0 && (
+                <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                  {wishlistCount}
+                </span>
+              )}
             </Link>
 
+            <Link
+              to="/cart"
+              className="relative hover:text-blue-200 transition-colors"
+            >
+              <ShoppingCart size={20} />
+              {cartItems.length > 0 && (
+                <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                  {cartItems.length}
+                </span>
+              )}
+            </Link>
+
+            {/* Account button or dropdown based on authentication status */}
             {isAuthenticated ? (
-              <>
-                <Link
-                  to="/wishlist"
-                  className="relative hover:text-blue-200 transition-colors"
+              <div className="relative" ref={dropdownRef}>
+                <button
+                  onClick={() => setIsDropdownOpen((prev) => !prev)}
+                  className="flex items-center space-x-1 hover:text-blue-200 transition-colors"
                 >
-                  <Heart size={20} />
-                  {wishlistCount > 0 && (
-                    <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                      {wishlistCount}
-                    </span>
-                  )}
-                </Link>
+                  <User size={20} />
+                  <span className="ml-1">Account</span>
+                </button>
 
-                <Link
-                  to="/cart"
-                  className="relative hover:text-blue-200 transition-colors"
-                >
-                  <ShoppingCart size={20} />
-                  {cartItems.length > 0 && (
-                    <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                      {cartItems.length}
-                    </span>
-                  )}
-                </Link>
-
-                <div className="relative" ref={dropdownRef}>
-                  <button
-                    onClick={() => setIsDropdownOpen((prev) => !prev)}
-                    className="flex items-center space-x-1 hover:text-blue-200 transition-colors"
-                  >
-                    <User size={20} />
-                    <span>{user?.name || "Account"}</span>
-                  </button>
-
-                  {isDropdownOpen && (
-                    <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-20">
-                      <Link
-                        to="/profile"
-                        className="block px-4 py-2 text-gray-800 hover:bg-primary-50"
-                      >
-                        Profile
-                      </Link>
-                      <Link
-                        to="/orders"
-                        className="block px-4 py-2 text-gray-800 hover:bg-primary-50"
-                      >
-                        Orders
-                      </Link>
-                      <button
-                        onClick={handleLogout}
-                        className="block w-full text-left px-4 py-2 text-gray-800 hover:bg-primary-50"
-                      >
-                        Logout
-                      </button>
-                    </div>
-                  )}
-                </div>
-              </>
+                {isDropdownOpen && (
+                  <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-20">
+                    <Link
+                      to="/profile"
+                      className="block px-4 py-2 text-gray-800 hover:bg-primary-50"
+                    >
+                      Profile
+                    </Link>
+                    <Link
+                      to="/orders"
+                      className="block px-4 py-2 text-gray-800 hover:bg-primary-50"
+                    >
+                      Orders
+                    </Link>
+                    <button
+                      onClick={handleLogout}
+                      className="block w-full text-left px-4 py-2 text-gray-800 hover:bg-primary-50"
+                    >
+                      Logout
+                    </button>
+                  </div>
+                )}
+              </div>
             ) : (
               <Link
                 to="/login"
-                className="bg-white text-primary-600 px-4 py-2 rounded-md font-medium hover:bg-primary-50 transition-colors"
+                className="flex items-center bg-white text-primary-600 px-4 py-2 rounded-md font-medium hover:bg-primary-50 transition-colors"
               >
-                Login
+                <User size={18} className="mr-1" />
+                Account
               </Link>
             )}
           </nav>
@@ -197,34 +189,36 @@ const Header: React.FC = () => {
               Products
             </Link>
 
+            {/* Always visible on mobile menu regardless of auth status */}
+            <Link
+              to="/wishlist"
+              className="block py-2 hover:bg-primary-600 px-2 rounded"
+              onClick={() => setIsMenuOpen(false)}
+            >
+              <div className="flex items-center">
+                <Heart size={20} className="mr-2" />
+                <span>
+                  Wishlist {wishlistCount > 0 && `(${wishlistCount})`}
+                </span>
+              </div>
+            </Link>
+
+            <Link
+              to="/cart"
+              className="block py-2 hover:bg-primary-600 px-2 rounded"
+              onClick={() => setIsMenuOpen(false)}
+            >
+              <div className="flex items-center">
+                <ShoppingCart size={20} className="mr-2" />
+                <span>
+                  Cart {cartItems.length > 0 && `(${cartItems.length})`}
+                </span>
+              </div>
+            </Link>
+
+            {/* Account options based on auth status */}
             {isAuthenticated ? (
               <>
-                <Link
-                  to="/wishlist"
-                  className="block py-2 hover:bg-primary-600 px-2 rounded"
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  <div className="flex items-center">
-                    <Heart size={20} className="mr-2" />
-                    <span>
-                      Wishlist {wishlistCount > 0 && `(${wishlistCount})`}
-                    </span>
-                  </div>
-                </Link>
-
-                <Link
-                  to="/cart"
-                  className="block py-2 hover:bg-primary-600 px-2 rounded"
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  <div className="flex items-center">
-                    <ShoppingCart size={20} className="mr-2" />
-                    <span>
-                      Cart {cartItems.length > 0 && `(${cartItems.length})`}
-                    </span>
-                  </div>
-                </Link>
-
                 <Link
                   to="/profile"
                   className="block py-2 hover:bg-primary-600 px-2 rounded"
@@ -254,10 +248,13 @@ const Header: React.FC = () => {
             ) : (
               <Link
                 to="/login"
-                className="block py-2 mt-2 bg-white text-blue-700 px-2 rounded font-medium"
+                className="block py-2 mt-2 bg-white text-primary-600 px-2 rounded font-medium"
                 onClick={() => setIsMenuOpen(false)}
               >
-                Login
+                <div className="flex items-center">
+                  <User size={18} className="mr-2" />
+                  <span>Account</span>
+                </div>
               </Link>
             )}
           </nav>
