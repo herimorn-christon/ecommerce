@@ -86,17 +86,19 @@ export interface CartItem {
 
 // Order types
 export interface OrderItem {
-  id?: string;
+  id: string;
   productId: string;
   quantity: number;
-  unitPrice?: string;
-  orderId?: string;
-  createdAt?: string;
-  updatedAt?: string;
-  product?: {
+  unitPrice: string;
+  orderId: string;
+  createdAt: string;
+  updatedAt: string;
+  product: {
     id: string;
     name: string;
-    images: ProductImage[];
+    images: Array<{
+      url: string;
+    }>;
   };
 }
 
@@ -138,15 +140,15 @@ export interface Order {
   deliveryOption: string;
   paymentMethod: string;
   paymentDetails: PaymentDetails;
-  addressId: string;
   totalAmount: string;
-  notes?: string;
-  transactionId: string;
+  notes: string;
+  addressId: string;
   userId: string;
+  transactionId: string;
   createdAt: string;
   updatedAt: string;
   items: OrderItem[];
-  address?: Address;
+  address: Address;
   user?: OrderUser;
   transaction?: Transaction;
 }

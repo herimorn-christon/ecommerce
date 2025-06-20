@@ -31,8 +31,11 @@ export const fetchOrders = createAsyncThunk(
   "orders/fetchOrders",
   async (_, { rejectWithValue }) => {
     try {
-      return await orderService.getOrders();
+      const orders = await orderService.getOrders();
+      console.log("Fetched orders in thunk:", orders);
+      return orders;
     } catch (error: any) {
+      console.error("Error fetching orders in thunk:", error);
       return rejectWithValue(
         error.response?.data?.message || "Failed to fetch orders"
       );
@@ -44,8 +47,11 @@ export const fetchOrderById = createAsyncThunk(
   "orders/fetchOrderById",
   async (orderId: string, { rejectWithValue }) => {
     try {
-      return await orderService.getOrderById(orderId);
+      const order = await orderService.getOrderById(orderId);
+      console.log("Fetched order details in thunk:", order);
+      return order;
     } catch (error: any) {
+      console.error("Error fetching order details in thunk:", error);
       return rejectWithValue(
         error.response?.data?.message || "Failed to fetch order details"
       );
@@ -98,13 +104,18 @@ export const createOrder = createAsyncThunk(
 
 export const cancelOrder = createAsyncThunk(
   "orders/cancelOrder",
-  async (orderId: string, { rejectWithValue }) => {
+  async (orderId: string, { rejectWithValue, dispatch }) => {
     try {
+      console.log("Attempting to cancel order:", orderId);
       // Send status in the correct format
       const response = await orderService.cancelOrder({
         orderId,
         status: "cancelled", // Exactly match the expected value
       });
+      console.log("Cancel order response:", response);
+
+      // Refresh orders after successful cancellation
+      dispatch(fetchOrders());
       return response;
     } catch (error: any) {
       console.error("Order cancellation failed:", error);
@@ -205,6 +216,7 @@ const ordersSlice = createSlice({
         fetchOrders.fulfilled,
         (state, action: PayloadAction<Order[]>) => {
           state.isLoading = false;
+          console.log("Fetched orders in reducer:", action.payload);
           state.orders = action.payload;
         }
       )
@@ -222,6 +234,7 @@ const ordersSlice = createSlice({
         fetchOrderById.fulfilled,
         (state, action: PayloadAction<Order>) => {
           state.isLoading = false;
+          console.log("Fetched order details in reducer:", action.payload);
           state.selectedOrder = action.payload;
         }
       )

@@ -49,8 +49,10 @@ const orderService = {
   getOrders: async () => {
     try {
       const response = await api.get("/orders");
+      console.log("Orders API response:", response.data);
       return response.data;
     } catch (error: any) {
+      console.error("Failed to fetch orders:", error);
       throw new Error(
         error.response?.data?.message || "Failed to fetch orders"
       );
@@ -60,8 +62,10 @@ const orderService = {
   getOrderById: async (id: string) => {
     try {
       const response = await api.get(`/orders/${id}`);
+      console.log("Order details API response:", response.data);
       return response.data;
     } catch (error: any) {
+      console.error("Failed to fetch order:", error);
       throw new Error(error.response?.data?.message || "Failed to fetch order");
     }
   },
