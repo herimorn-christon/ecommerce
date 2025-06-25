@@ -1,11 +1,16 @@
 import { AlertCircle, ArrowLeft, Loader2, Upload } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import toast from "react-hot-toast";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import productService from "../../services/productService";
 import { Category, ProductFormData } from "../../types";
 
-const ProductForm: React.FC = () => {
+interface ProductFormProps {
+  isEditMode?: boolean;
+}
+
+const ProductForm: React.FC<ProductFormProps> = ({ isEditMode = false }) => {
+  const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
   const [categories, setCategories] = useState<Category[]>([]);
@@ -27,22 +32,51 @@ const ProductForm: React.FC = () => {
     alertQuantity: 0,
   });
 
-  // Fetch categories when component mounts
+  // Fetch categories and product data (if editing) when component mounts
   useEffect(() => {
-    const fetchCategories = async () => {
+    const fetchInitialData = async () => {
       try {
-        const data = await productService.getCategories();
-        setCategories(data);
+        setCategoriesLoading(true);
+
+        // Fetch categories
+        const categoriesData = await productService.getCategories();
+        setCategories(categoriesData);
+
+        // If in edit mode, fetch the product data
+        if (isEditMode && id) {
+          setIsLoading(true);
+          const productData = await productService.getProductById(id);
+
+          // Convert product data to form state
+          setForm({
+            name: productData.name,
+            unitPrice: parseInt(productData.unitPrice),
+            availableQuantity: productData.availableQuantity,
+            imageUrls: productData.images.map((img) => img.url),
+            description: productData.description,
+            categoryId: productData.categoryId,
+            storageType: productData.storageType,
+            alertQuantity: productData.alertQuantity,
+          });
+
+          // Set uploaded URLs for image display
+          setUploadedUrls(productData.images.map((img) => img.url));
+          setIsLoading(false);
+        }
       } catch (error) {
-        console.error("Failed to fetch categories:", error);
-        toast.error("Failed to load categories");
+        console.error("Failed to fetch initial data:", error);
+        toast.error(
+          isEditMode
+            ? "Failed to load product data"
+            : "Failed to load categories"
+        );
       } finally {
         setCategoriesLoading(false);
       }
     };
 
-    fetchCategories();
-  }, []);
+    fetchInitialData();
+  }, [isEditMode, id]);
 
   // Handle form input changes
   const handleChange = (
@@ -159,12 +193,22 @@ const ProductForm: React.FC = () => {
     setIsLoading(true);
 
     try {
-      await productService.createProduct(form);
-      toast.success("Product created successfully");
+      if (isEditMode && id) {
+        // Update existing product
+        await productService.updateProduct(id, form);
+        toast.success("Product updated successfully");
+      } else {
+        // Create new product
+        await productService.createProduct(form);
+        toast.success("Product created successfully");
+      }
       navigate("/seller/products");
     } catch (error) {
-      console.error("Error creating product:", error);
-      toast.error("Failed to create product");
+      console.error(
+        `Error ${isEditMode ? "updating" : "creating"} product:`,
+        error
+      );
+      toast.error(`Failed to ${isEditMode ? "update" : "create"} product`);
     } finally {
       setIsLoading(false);
     }
@@ -174,7 +218,9 @@ const ProductForm: React.FC = () => {
     <div className="bg-white shadow-sm rounded-lg border border-gray-200 overflow-hidden">
       <div className="border-b border-gray-200 px-6 py-4">
         <div className="flex items-center justify-between">
-          <h2 className="text-lg font-medium text-gray-900">Add New Product</h2>
+          <h2 className="text-lg font-medium text-gray-900">
+            {isEditMode ? "Edit Product" : "Add New Product"}
+          </h2>
           <button
             onClick={() => navigate("/seller/products")}
             className="flex items-center text-primary-600 hover:text-primary-700"
@@ -378,7 +424,6 @@ const ProductForm: React.FC = () => {
             <h3 className="text-base font-medium text-gray-900 mb-4">
               Product Images <span className="text-red-500">*</span>
             </h3>
-
             {/* Image upload control */}
             <div className="mb-4">
               <div className="flex items-center">
@@ -420,14 +465,13 @@ const ProductForm: React.FC = () => {
                 Upload clear, high-quality images of your product. You can
                 select multiple files.
               </p>
-            </div>
-
+            </div>{" "}
             {/* Display uploaded images */}
             {uploadedUrls.length > 0 && (
               <div>
                 <div className="flex items-center justify-between mb-2">
                   <h4 className="text-sm font-medium text-gray-700">
-                    Uploaded Images ({uploadedUrls.length})
+                    Product Images ({uploadedUrls.length})
                   </h4>
                   <button
                     type="button"
@@ -441,7 +485,10 @@ const ProductForm: React.FC = () => {
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
                   {uploadedUrls.map((url, index) => (
                     <div
-                      key={index}
+                      key={`img-${index}-${url.substring(
+                        url.lastIndexOf("/") + 1,
+                        url.lastIndexOf(".")
+                      )}`}
                       className="relative border border-gray-200 rounded-md overflow-hidden group"
                     >
                       <img
@@ -463,7 +510,6 @@ const ProductForm: React.FC = () => {
                 </div>
               </div>
             )}
-
             {/* Error message if no images are uploaded */}
             {form.imageUrls.length === 0 && (
               <div className="rounded-md bg-yellow-50 p-4 mt-4">
@@ -508,8 +554,10 @@ const ProductForm: React.FC = () => {
               {isLoading ? (
                 <>
                   <Loader2 className="animate-spin h-4 w-4 mr-2" />
-                  Creating...
+                  {isEditMode ? "Updating..." : "Creating..."}
                 </>
+              ) : isEditMode ? (
+                "Update Product"
               ) : (
                 "Create Product"
               )}

@@ -1,10 +1,13 @@
 import React, { useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import ProductForm from "../../components/products/ProductForm";
 import { useAppSelector } from "../../redux/hooks";
 
 const AddProductPage: React.FC = () => {
   const navigate = useNavigate();
+  const { id } = useParams<{ id: string }>();
+  const isEditMode = Boolean(id);
+
   const { isAuthenticated, user } = useAppSelector((state) => state.auth);
   const { profile } = useAppSelector((state) => state.seller);
   const isUserSeller = user?.roles?.includes("seller");
@@ -28,13 +31,17 @@ const AddProductPage: React.FC = () => {
   return (
     <div>
       <div className="mb-6">
-        <h1 className="text-3xl font-bold text-gray-900">Add New Product</h1>
+        <h1 className="text-3xl font-bold text-gray-900">
+          {isEditMode ? "Edit Product" : "Add New Product"}
+        </h1>
         <p className="text-gray-600 mt-2">
-          Create a new product listing for your store
+          {isEditMode
+            ? "Update your product details and information"
+            : "Create a new product listing for your store"}
         </p>
       </div>
 
-      <ProductForm />
+      <ProductForm isEditMode={isEditMode} />
     </div>
   );
 };
