@@ -90,7 +90,6 @@ const ProductForm: React.FC = () => {
       for (const file of files) {
         // Using the updated uploadImage function with default folder parameter
         const result = await productService.uploadImage(file);
-        console.log(result);
 
         if (result?.data?.url) {
           urls.push(result.data.url);

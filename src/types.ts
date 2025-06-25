@@ -85,7 +85,7 @@ export interface Product {
   sellerId: string;
   category: Category;
   images: ProductImage[];
-  seller: Seller;
+  seller?: Seller;
 }
 
 export interface ProductImage {

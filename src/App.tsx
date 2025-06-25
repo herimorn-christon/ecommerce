@@ -153,6 +153,7 @@ function App() {
               <Route path="orders" element={<SellerOrdersPage />} />
               <Route path="products" element={<SellerProductsPage />} />
               <Route path="products/add" element={<AddProductPage />} />
+              <Route path="products/edit/:id" element={<AddProductPage />} />
               <Route path="settings" element={<SellerSettingsPage />} />
               <Route
                 path="profile/create"
