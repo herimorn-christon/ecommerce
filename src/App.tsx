@@ -19,6 +19,7 @@ import PrivacyPolicyPage from "./pages/PrivacyPolicyPage";
 import ProductDetailPage from "./pages/ProductDetailPage";
 import ProductsPage from "./pages/ProductsPage";
 import ProfilePage from "./pages/ProfilePage";
+import AddProductPage from "./pages/seller/AddProductPage";
 import SellerDashboardPage from "./pages/seller/SellerDashboardPage";
 import SellerOrdersPage from "./pages/seller/SellerOrdersPage";
 import SellerProductsPage from "./pages/seller/SellerProductsPage";
@@ -151,6 +152,7 @@ function App() {
               <Route path="dashboard" element={<SellerDashboardPage />} />
               <Route path="orders" element={<SellerOrdersPage />} />
               <Route path="products" element={<SellerProductsPage />} />
+              <Route path="products/add" element={<AddProductPage />} />
               <Route path="settings" element={<SellerSettingsPage />} />
               <Route
                 path="profile/create"

@@ -114,6 +114,18 @@ export interface Seller {
   updatedAt: string;
 }
 
+// Product form data type
+export interface ProductFormData {
+  name: string;
+  unitPrice: number;
+  availableQuantity: number;
+  imageUrls: string[];
+  description: string;
+  categoryId: string;
+  storageType: string;
+  alertQuantity: number;
+}
+
 // Cart types
 export interface CartItem {
   productId: string;

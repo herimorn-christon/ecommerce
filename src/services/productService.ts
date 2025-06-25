@@ -31,6 +31,27 @@ const productService = {
     return response.data;
   },
 
+  // Create a new product
+  createProduct: async (productData: any) => {
+    const response = await api.post("/products", productData);
+    return response.data;
+  },
+
+  // Upload a product image
+  uploadImage: async (file: File, fileName: string) => {
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("fileName", fileName);
+
+    const response = await api.post("/uploads", formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
+
+    return response.data;
+  },
+
   // Wishlist operations are handled locally with Redux
 };
 

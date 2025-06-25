@@ -34,13 +34,11 @@ const SellerLayout: React.FC = () => {
       name: "Orders",
       path: "/seller/orders",
       icon: <ShoppingBag size={20} />,
-      requiresVerification: true,
     },
     {
       name: "Products",
       path: "/seller/products",
       icon: <Package size={20} />,
-      requiresVerification: true,
     },
     {
       name: "Settings",
@@ -74,12 +72,12 @@ const SellerLayout: React.FC = () => {
           <nav className="space-y-1">
             {navigation.map((item) => {
               // Don't show restricted items if profile isn't verified
-              if (
-                item.requiresVerification &&
-                (!profile || !profile.isVerified)
-              ) {
-                return null;
-              }
+              // if (
+              //   item.requiresVerification &&
+              //   (!profile || !profile.isVerified)
+              // ) {
+              //   return null;
+              // }
 
               return (
                 <Link
