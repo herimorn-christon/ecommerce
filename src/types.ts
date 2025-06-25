@@ -3,13 +3,15 @@ export interface WishlistItem {
   product: Product;
 }
 
+type Role = "admin" | "seller" | "user" | "transporter";
+
 // User types
 export interface User {
   id: string;
   name: string;
   phoneNumber: string;
   email: string;
-  roles: string[];
+  roles: Role[];
   createdAt: string;
   updatedAt: string;
 }
