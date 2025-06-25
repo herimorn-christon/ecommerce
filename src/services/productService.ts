@@ -1,3 +1,4 @@
+import { ProductFormData } from "../types";
 import api from "./api";
 
 const productService = {
@@ -32,18 +33,17 @@ const productService = {
   },
 
   // Create a new product
-  createProduct: async (productData: any) => {
+  createProduct: async (productData: ProductFormData) => {
     const response = await api.post("/products", productData);
     return response.data;
   },
 
   // Upload a product image
-  uploadImage: async (file: File, fileName: string) => {
+  uploadImage: async (file: File, folder: string = "product-images") => {
     const formData = new FormData();
     formData.append("file", file);
-    formData.append("fileName", fileName);
 
-    const response = await api.post("/uploads", formData, {
+    const response = await api.post(`/uploads/${folder}`, formData, {
       headers: {
         "Content-Type": "multipart/form-data",
       },

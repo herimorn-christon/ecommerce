@@ -88,14 +88,12 @@ const ProductForm: React.FC = () => {
     try {
       // Upload each file and collect URLs
       for (const file of files) {
-        const fileName = `product_${Date.now()}_${file.name.replace(
-          /\\s+/g,
-          "_"
-        )}`;
-        const result = await productService.uploadImage(file, fileName);
+        // Using the updated uploadImage function with default folder parameter
+        const result = await productService.uploadImage(file);
+        console.log(result);
 
-        if (result?.url) {
-          urls.push(result.url);
+        if (result?.data?.url) {
+          urls.push(result.data.url);
         } else {
           throw new Error("Failed to upload image");
         }
