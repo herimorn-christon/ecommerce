@@ -58,9 +58,9 @@ const SellerLayout: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex">
+    <div className="min-h-screen bg-gray-50 flex pb-0">
       {/* Sidebar - hidden on mobile */}
-      <div className="w-64 bg-white shadow-sm border-r border-gray-200 fixed top-16 bottom-0 hidden md:flex flex-col z-30">
+      <div className="w-64 bg-white shadow-sm border-r border-gray-200 fixed top-16 bottom-0 left-0 hidden md:flex flex-col z-30">
         <div className="py-4 px-4 border-b border-gray-200">
           <h2 className="text-lg font-semibold text-primary-600 flex items-center">
             <Package className="mr-2" /> Seller Hub
@@ -135,7 +135,7 @@ const SellerLayout: React.FC = () => {
       </div>
 
       {/* Main content */}
-      <div className="md:pl-64 w-full mt-0">
+      <div className="md:pl-64 w-full mt-0 flex flex-col mb-0">
         {/* Breadcrumb navigation */}
         <div className="bg-white border-b border-gray-200 py-3 px-6">
           <div className="flex items-center space-x-2 text-sm text-gray-600">
@@ -151,13 +151,15 @@ const SellerLayout: React.FC = () => {
           </div>
         </div>
 
-        <div className="p-6 pb-16 md:pb-6">
+        <div className="p-6 pb-24 md:pb-16 flex-grow">
           <Outlet />
+          {/* Space for mobile navigation */}
+          <div className="md:hidden h-16"></div>
         </div>
       </div>
 
       {/* Mobile bottom navigation */}
-      <div className="md:hidden fixed bottom-0 inset-x-0 bg-white border-t border-gray-200 flex justify-around z-40">
+      <div className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 flex justify-around z-40">
         <NavLink
           to="/seller/dashboard"
           className={({ isActive }: { isActive: boolean }) =>

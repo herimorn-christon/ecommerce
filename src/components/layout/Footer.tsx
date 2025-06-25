@@ -7,12 +7,20 @@ import {
   Twitter,
 } from "lucide-react";
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import logo from "../../assets/logo/2.svg";
 
 const Footer: React.FC = () => {
+  // Check if we're in the seller layout
+  const location = useLocation();
+  const isSellerLayout = location.pathname.startsWith("/seller");
+
   return (
-    <footer className="bg-primary-700 text-white pt-12 pb-6">
+    <footer
+      className={`bg-primary-700 text-white pt-12 pb-6 ${
+        isSellerLayout ? "md:pl-64" : ""
+      }`}
+    >
       <div className="container mx-auto px-4">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {/* Brand and About */}

@@ -68,7 +68,7 @@ function App() {
       <div className="flex flex-col min-h-screen">
         <Header />
 
-        <main className="flex-grow pt-16">
+        <main className="flex-grow pt-16 relative">
           <Routes>
             <Route path="/" element={<HomePage />} />
             <Route path="/login" element={<AuthPage />} />
@@ -179,7 +179,10 @@ function App() {
           </Routes>
         </main>
 
-        <Footer />
+        {/* Footer is conditionally displayed - not shown in seller layout */}
+        <div className="mt-auto">
+          <Footer />
+        </div>
       </div>
       <Toaster position="bottom-right" />
     </Router>
