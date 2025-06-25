@@ -256,7 +256,9 @@ const SellerProductsPage: React.FC = () => {
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                       <div className="flex justify-end space-x-3">
                         <button
-                          onClick={() => navigate(`/products/${product.id}`)}
+                          onClick={() =>
+                            navigate(`/seller/products/view/${product.id}`)
+                          }
                           className="text-gray-400 hover:text-gray-600"
                           title="View Product"
                         >

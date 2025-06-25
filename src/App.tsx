@@ -22,6 +22,7 @@ import ProfilePage from "./pages/ProfilePage";
 import AddProductPage from "./pages/seller/AddProductPage";
 import SellerDashboardPage from "./pages/seller/SellerDashboardPage";
 import SellerOrdersPage from "./pages/seller/SellerOrdersPage";
+import SellerProductDetailPage from "./pages/seller/SellerProductDetailPage";
 import SellerProductsPage from "./pages/seller/SellerProductsPage";
 import SellerProfileFormPage from "./pages/seller/SellerProfileFormPage";
 import SellerSettingsPage from "./pages/seller/SellerSettingsPage";
@@ -154,6 +155,10 @@ function App() {
               <Route path="products" element={<SellerProductsPage />} />
               <Route path="products/add" element={<AddProductPage />} />
               <Route path="products/edit/:id" element={<AddProductPage />} />
+              <Route
+                path="products/view/:id"
+                element={<SellerProductDetailPage />}
+              />
               <Route path="settings" element={<SellerSettingsPage />} />
               <Route
                 path="profile/create"
