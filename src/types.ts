@@ -16,6 +16,41 @@ export interface User {
   updatedAt: string;
 }
 
+// Seller types
+export interface SellerProfile {
+  id: string;
+  businessName: string;
+  sellerType: string; // "individual" | "company" | "association"
+  address: string;
+  backNationalId?: string;
+  nationalId?: string;
+  frontNationalId?: string;
+  isVerified: boolean;
+  licence?: string;
+  country?: string;
+  region?: string;
+  city?: string;
+  district?: string;
+  createdAt?: string;
+  userId: string;
+}
+
+export interface SellerProfileFormData {
+  businessName: string;
+  sellerType: string; // "individual" | "company" | "association"
+  address: string;
+  region?: string;
+  city?: string;
+  country?: string;
+  // Additional fields for the form
+  nationalId?: string;
+  frontNationalId?: string;
+  backNationalId?: string;
+  companyId?: string;
+  associateId?: string;
+  district?: string;
+}
+
 // Authentication types
 export interface LoginResponse {
   message: string;

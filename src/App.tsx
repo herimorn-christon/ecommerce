@@ -19,6 +19,7 @@ import PrivacyPolicyPage from "./pages/PrivacyPolicyPage";
 import ProductDetailPage from "./pages/ProductDetailPage";
 import ProductsPage from "./pages/ProductsPage";
 import ProfilePage from "./pages/ProfilePage";
+import SellerProfileFormPage from "./pages/SellerProfileFormPage";
 import SellerRegistrationPage from "./pages/SellerRegistrationPage";
 import WishlistPage from "./pages/WishlistPage";
 import { useAppDispatch, useAppSelector } from "./redux/hooks";
@@ -139,6 +140,14 @@ function App() {
               element={
                 <ProtectedRoute>
                   <DashboardPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/seller-profile/create"
+              element={
+                <ProtectedRoute>
+                  <SellerProfileFormPage />
                 </ProtectedRoute>
               }
             />
