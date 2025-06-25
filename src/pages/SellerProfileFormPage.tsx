@@ -133,7 +133,7 @@ const SellerProfileFormPage: React.FC = () => {
     try {
       await dispatch(createSellerProfile(form)).unwrap();
       toast.success("Seller profile created successfully!");
-      navigate("/dashboard");
+      navigate("/seller/dashboard");
     } catch (error: any) {
       toast.error(error?.message || "Failed to create seller profile");
     } finally {
@@ -146,7 +146,7 @@ const SellerProfileFormPage: React.FC = () => {
       <div className="max-w-3xl mx-auto">
         {/* Back button */}
         <Link
-          to="/dashboard"
+          to="/seller/dashboard"
           className="flex items-center text-primary-600 hover:text-primary-700 mb-6"
         >
           <ArrowLeft size={16} className="mr-1" />
@@ -643,7 +643,7 @@ const SellerProfileFormPage: React.FC = () => {
               <button
                 type="button"
                 className="bg-white py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 mr-3"
-                onClick={() => navigate("/dashboard")}
+                onClick={() => navigate("/seller/dashboard")}
               >
                 Cancel
               </button>

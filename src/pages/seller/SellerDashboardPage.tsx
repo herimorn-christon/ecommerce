@@ -12,11 +12,11 @@ import {
 } from "lucide-react";
 import React, { useEffect } from "react";
 import toast from "react-hot-toast";
-import { Link, useNavigate } from "react-router-dom";
-import { useAppDispatch, useAppSelector } from "../redux/hooks";
-import { fetchSellerProfile } from "../redux/slices/sellerSlice";
+import { useNavigate } from "react-router-dom";
+import { useAppDispatch, useAppSelector } from "../../redux/hooks";
+import { fetchSellerProfile } from "../../redux/slices/sellerSlice";
 
-const DashboardPage: React.FC = () => {
+const SellerDashboardPage: React.FC = () => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const { isAuthenticated, user } = useAppSelector((state) => state.auth);
@@ -50,7 +50,7 @@ const DashboardPage: React.FC = () => {
       duration: 4000,
       position: "bottom-right",
     });
-    navigate("/seller-profile/create");
+    navigate("/seller/profile/create");
   };
 
   // Mock data - in real app, this would come from API
@@ -314,25 +314,25 @@ const DashboardPage: React.FC = () => {
                 title="Add Product"
                 description="Add new product to inventory"
                 icon={<Plus className="h-5 w-5" />}
-                onClick={() => console.log("Add Product")}
+                onClick={() => navigate("/seller/products/new")}
               />
               <ActionButton
                 title="Reports"
                 description="View sales and performance reports"
                 icon={<BarChart3 className="h-5 w-5" />}
-                onClick={() => console.log("Reports")}
+                onClick={() => navigate("/seller/reports")}
               />
               <ActionButton
                 title="Inventory"
                 description="Manage product stock levels"
                 icon={<Warehouse className="h-5 w-5" />}
-                onClick={() => console.log("Inventory")}
+                onClick={() => navigate("/seller/products")}
               />
               <ActionButton
                 title="Analytics"
                 description="Detailed analytics dashboard"
                 icon={<TrendingUp className="h-5 w-5" />}
-                onClick={() => console.log("Analytics")}
+                onClick={() => navigate("/seller/analytics")}
               />
             </div>
           )}
@@ -345,12 +345,12 @@ const DashboardPage: React.FC = () => {
               Recent Orders
             </h2>
             {profile && profile.isVerified && (
-              <Link
-                to="/orders"
+              <button
+                onClick={() => navigate("/seller/orders")}
                 className="text-sm text-primary-600 hover:text-primary-800 font-medium"
               >
                 View all orders
-              </Link>
+              </button>
             )}
           </div>
 
@@ -435,7 +435,12 @@ const DashboardPage: React.FC = () => {
                           </span>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                          <button className="text-primary-600 hover:text-primary-900">
+                          <button
+                            className="text-primary-600 hover:text-primary-900"
+                            onClick={() =>
+                              navigate(`/seller/orders/${order.id}`)
+                            }
+                          >
                             View Details
                           </button>
                         </td>
@@ -518,4 +523,4 @@ const ActionButton: React.FC<ActionButtonProps> = ({
   );
 };
 
-export default DashboardPage;
+export default SellerDashboardPage;

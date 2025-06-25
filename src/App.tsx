@@ -8,10 +8,10 @@ import {
 } from "react-router-dom";
 import Footer from "./components/layout/Footer";
 import Header from "./components/layout/Header";
+import SellerLayout from "./components/layout/SellerLayout";
 import AuthPage from "./pages/AuthPage";
 import CartPage from "./pages/CartPage";
 import CheckoutPage from "./pages/CheckoutPage";
-import DashboardPage from "./pages/DashboardPage";
 import HomePage from "./pages/HomePage";
 import OrderCheckoutPage from "./pages/OrderCheckoutPage";
 import PaymentPage from "./pages/PaymentPage";
@@ -19,7 +19,11 @@ import PrivacyPolicyPage from "./pages/PrivacyPolicyPage";
 import ProductDetailPage from "./pages/ProductDetailPage";
 import ProductsPage from "./pages/ProductsPage";
 import ProfilePage from "./pages/ProfilePage";
-import SellerProfileFormPage from "./pages/SellerProfileFormPage";
+import SellerDashboardPage from "./pages/seller/SellerDashboardPage";
+import SellerOrdersPage from "./pages/seller/SellerOrdersPage";
+import SellerProductsPage from "./pages/seller/SellerProductsPage";
+import SellerProfileFormPage from "./pages/seller/SellerProfileFormPage";
+import SellerSettingsPage from "./pages/seller/SellerSettingsPage";
 import SellerRegistrationPage from "./pages/SellerRegistrationPage";
 import WishlistPage from "./pages/WishlistPage";
 import { useAppDispatch, useAppSelector } from "./redux/hooks";
@@ -63,7 +67,7 @@ function App() {
       <div className="flex flex-col min-h-screen">
         <Header />
 
-        <main className="flex-grow">
+        <main className="flex-grow pt-16">
           <Routes>
             <Route path="/" element={<HomePage />} />
             <Route path="/login" element={<AuthPage />} />
@@ -135,21 +139,40 @@ function App() {
                 </ProtectedRoute>
               }
             />
+            {/* Seller Routes with SellerLayout */}
+            <Route
+              path="/seller"
+              element={
+                <ProtectedRoute>
+                  <SellerLayout />
+                </ProtectedRoute>
+              }
+            >
+              <Route path="dashboard" element={<SellerDashboardPage />} />
+              <Route path="orders" element={<SellerOrdersPage />} />
+              <Route path="products" element={<SellerProductsPage />} />
+              <Route path="settings" element={<SellerSettingsPage />} />
+              <Route
+                path="profile/create"
+                element={<SellerProfileFormPage />}
+              />
+              <Route path="profile/edit" element={<SellerProfileFormPage />} />
+              <Route
+                index
+                element={<Navigate to="/seller/dashboard" replace />}
+              />
+            </Route>
+
+            {/* Legacy dashboard route - redirect to new seller dashboard */}
             <Route
               path="/dashboard"
-              element={
-                <ProtectedRoute>
-                  <DashboardPage />
-                </ProtectedRoute>
-              }
+              element={<Navigate to="/seller/dashboard" replace />}
             />
+
+            {/* Legacy seller profile create route - redirect to new route */}
             <Route
               path="/seller-profile/create"
-              element={
-                <ProtectedRoute>
-                  <SellerProfileFormPage />
-                </ProtectedRoute>
-              }
+              element={<Navigate to="/seller/profile/create" replace />}
             />
           </Routes>
         </main>
