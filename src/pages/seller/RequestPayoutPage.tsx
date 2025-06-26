@@ -449,7 +449,7 @@ const RequestPayoutPage: React.FC = () => {
                   <div>
                     <p className="font-medium text-gray-900">Processing Time</p>
                     <p className="text-gray-600">
-                      Payouts are typically processed within 1-3 business days.
+                      Payouts are typically processed within 1 business day.
                     </p>
                   </div>
                 </div>

@@ -1,4 +1,15 @@
-import { Edit, Eye, Package, Plus, Trash2 } from "lucide-react";
+import {
+  ArrowRight,
+  BarChart3,
+  Edit,
+  Eye,
+  Loader2,
+  Package,
+  Plus,
+  ShoppingBag,
+  Tag,
+  Trash2,
+} from "lucide-react";
 import React, { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
@@ -14,6 +25,7 @@ const SellerProductsPage: React.FC = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [filter, setFilter] = useState<string>("all"); // 'all', 'active', 'inactive', 'lowStock'
 
   useEffect(() => {
     // Redirect if not authenticated or not a seller
@@ -76,6 +88,35 @@ const SellerProductsPage: React.FC = () => {
   if (!isAuthenticated || !isUserSeller || (profile && !profile.isVerified))
     return null;
 
+  // Calculate product summary statistics
+  const productSummary = {
+    total: products.length,
+    active: products.filter((product) => product.isActive).length,
+    inactive: products.filter((product) => !product.isActive).length,
+    lowStock: products.filter(
+      (product) => product.availableQuantity <= product.alertQuantity
+    ).length,
+    totalValue: products.reduce(
+      (sum, product) =>
+        sum + parseInt(product.unitPrice) * product.availableQuantity,
+      0
+    ),
+  };
+
+  // Apply filters to products
+  const filteredProducts = products.filter((product) => {
+    switch (filter) {
+      case "active":
+        return product.isActive;
+      case "inactive":
+        return !product.isActive;
+      case "lowStock":
+        return product.availableQuantity <= product.alertQuantity;
+      default:
+        return true; // 'all' filter
+    }
+  });
+
   return (
     <div>
       <div className="mb-6 flex justify-between items-center">
@@ -90,6 +131,156 @@ const SellerProductsPage: React.FC = () => {
           <Plus size={16} className="mr-2" />
           Add Product
         </button>
+      </div>
+
+      {/* Product Summary Cards */}
+      <div className="mb-8 bg-white shadow-sm rounded-lg border border-gray-200 overflow-hidden">
+        <div className="p-6">
+          <div className="flex justify-between items-center mb-4">
+            <h3 className="text-lg font-medium text-gray-900">
+              Product Summary
+            </h3>
+            {isLoading && (
+              <div className="flex items-center text-sm text-gray-500">
+                <Loader2 size={16} className="mr-1.5 animate-spin" />
+                Loading...
+              </div>
+            )}
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            {/* Total Products Card */}
+            <div className="bg-primary-50 p-4 rounded-md border border-primary-100">
+              <h3 className="text-sm font-medium text-gray-600 flex items-center">
+                <Package size={16} className="mr-1.5 text-primary-500" />
+                Total Products
+              </h3>
+              <p className="mt-1 text-2xl font-semibold text-gray-900">
+                {productSummary.total}
+              </p>
+              <div className="mt-2 flex justify-between items-center">
+                <p className="text-xs text-gray-500">
+                  {productSummary.active} active · {productSummary.inactive}{" "}
+                  inactive
+                </p>
+                <button
+                  onClick={() => setFilter("all")}
+                  className="flex items-center text-xs text-primary-600 hover:text-primary-800"
+                >
+                  View all
+                  <ArrowRight size={12} className="ml-1" />
+                </button>
+              </div>
+            </div>
+
+            {/* Available Products Card */}
+            <div className="bg-green-50 p-4 rounded-md border border-green-100">
+              <h3 className="text-sm font-medium text-gray-600 flex items-center">
+                <ShoppingBag size={16} className="mr-1.5 text-green-500" />
+                Active Products
+              </h3>
+              <p className="mt-1 text-2xl font-semibold text-gray-900">
+                {productSummary.active}
+              </p>
+              <div className="mt-2 flex justify-between items-center">
+                <p className="text-xs text-gray-500">
+                  {Math.round(
+                    (productSummary.active / productSummary.total) * 100
+                  ) || 0}
+                  % of inventory
+                </p>
+                <button
+                  onClick={() => setFilter("active")}
+                  className="flex items-center text-xs text-green-600 hover:text-green-800"
+                >
+                  View active
+                  <ArrowRight size={12} className="ml-1" />
+                </button>
+              </div>
+            </div>
+
+            {/* Low Stock Card */}
+            <div className="bg-red-50 p-4 rounded-md border border-red-100">
+              <h3 className="text-sm font-medium text-gray-600 flex items-center">
+                <Tag size={16} className="mr-1.5 text-red-500" />
+                Low Stock Items
+              </h3>
+              <p className="mt-1 text-2xl font-semibold text-gray-900">
+                {productSummary.lowStock}
+              </p>
+              <div className="mt-2 flex justify-between items-center">
+                <p className="text-xs text-gray-500">Need restock soon</p>
+                <button
+                  onClick={() => setFilter("lowStock")}
+                  className="flex items-center text-xs text-red-600 hover:text-red-800"
+                >
+                  View items
+                  <ArrowRight size={12} className="ml-1" />
+                </button>
+              </div>
+            </div>
+
+            {/* Inventory Value Card */}
+            <div className="bg-blue-50 p-4 rounded-md border border-blue-100">
+              <h3 className="text-sm font-medium text-gray-600 flex items-center">
+                <BarChart3 size={16} className="mr-1.5 text-blue-500" />
+                Inventory Value
+              </h3>
+              <p className="mt-1 text-2xl font-semibold text-gray-900">
+                TZS {productSummary.totalValue.toLocaleString()}
+              </p>
+              <div className="mt-2 flex justify-between items-center">
+                <p className="text-xs text-gray-500">Total stock value</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Filter buttons */}
+      <div className="mb-6">
+        <div className="flex flex-wrap gap-2">
+          <button
+            onClick={() => setFilter("all")}
+            className={`px-3 py-1 text-sm rounded-md ${
+              filter === "all"
+                ? "bg-primary-100 text-primary-800 font-medium"
+                : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+            }`}
+          >
+            All Products
+          </button>
+          <button
+            onClick={() => setFilter("active")}
+            className={`px-3 py-1 text-sm rounded-md ${
+              filter === "active"
+                ? "bg-green-100 text-green-800 font-medium"
+                : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+            }`}
+          >
+            Active
+          </button>
+          <button
+            onClick={() => setFilter("inactive")}
+            className={`px-3 py-1 text-sm rounded-md ${
+              filter === "inactive"
+                ? "bg-gray-200 text-gray-800 font-medium"
+                : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+            }`}
+          >
+            Inactive
+          </button>
+          <button
+            onClick={() => setFilter("lowStock")}
+            className={`px-3 py-1 text-sm rounded-md ${
+              filter === "lowStock"
+                ? "bg-red-100 text-red-800 font-medium"
+                : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+            }`}
+          >
+            Low Stock
+          </button>
+        </div>
       </div>
 
       {isLoading ? (
@@ -144,6 +335,21 @@ const SellerProductsPage: React.FC = () => {
             </div>
           </div>
         </div>
+      ) : filteredProducts.length === 0 ? (
+        <div className="bg-white shadow-sm rounded-lg p-6 border border-gray-200">
+          <div className="flex items-center justify-center h-40 text-gray-400">
+            <div className="text-center">
+              <Package size={48} className="mx-auto mb-2" />
+              <p>No products match the selected filter</p>
+              <button
+                onClick={() => setFilter("all")}
+                className="mt-2 text-sm text-primary-600 hover:text-primary-800"
+              >
+                View all products
+              </button>
+            </div>
+          </div>
+        </div>
       ) : (
         <div className="bg-white shadow-sm rounded-lg border border-gray-200 overflow-hidden">
           <div className="overflow-x-auto">
@@ -189,7 +395,7 @@ const SellerProductsPage: React.FC = () => {
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {products.map((product) => (
+                {filteredProducts.map((product) => (
                   <tr key={product.id} className="hover:bg-gray-50">
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center">
