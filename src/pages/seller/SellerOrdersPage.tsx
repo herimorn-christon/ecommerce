@@ -1,10 +1,13 @@
 import {
+  ArrowRight,
+  BarChart,
   Filter,
   Loader2,
   Package,
   RefreshCcw,
   Search,
   ShoppingBag,
+  TruckIcon,
   XCircle,
 } from "lucide-react";
 import React, { useEffect, useState } from "react";
@@ -36,6 +39,30 @@ const SellerOrdersPage: React.FC = () => {
 
     return matchesSearch && matchesStatus;
   });
+
+  // Summary card calculation
+  const orderSummary = {
+    total: sellerOrders.length,
+    pending: sellerOrders.filter((order) => order.status === "pending").length,
+    processing: sellerOrders.filter((order) => order.status === "processing")
+      .length,
+    inTransit: sellerOrders.filter((order) => order.status === "shipping")
+      .length,
+    delivered: sellerOrders.filter((order) => order.status === "delivered")
+      .length,
+    cancelled: sellerOrders.filter((order) => order.status === "cancelled")
+      .length,
+    estimatedRevenue: sellerOrders
+      .filter((order) => order.status !== "cancelled")
+      .reduce((total, order) => {
+        const totalOrderAmount = order.items.reduce(
+          (sum, item) => sum + parseFloat(item.unitPrice) * item.quantity,
+          0
+        );
+
+        return total + totalOrderAmount;
+      }, 0),
+  };
 
   useEffect(() => {
     // Redirect if not authenticated or not a seller
@@ -104,6 +131,107 @@ const SellerOrdersPage: React.FC = () => {
         </button>
       </div>
 
+      {/* Order Summary Cards */}
+      <div className="mb-8 bg-white shadow-sm rounded-lg border border-gray-200 overflow-hidden">
+        <div className="p-6">
+          <div className="flex justify-between items-center mb-4">
+            <h3 className="text-lg font-medium text-gray-900">Order Summary</h3>
+            {isLoading && (
+              <div className="flex items-center text-sm text-gray-500">
+                <Loader2 size={16} className="mr-1.5 animate-spin" />
+                Loading...
+              </div>
+            )}
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="bg-primary-50 p-4 rounded-md border border-primary-100">
+              <h3 className="text-sm font-medium text-gray-600 flex items-center">
+                <ShoppingBag size={16} className="mr-1.5 text-primary-500" />
+                Total Orders
+              </h3>
+              <p className="mt-1 text-2xl font-semibold text-gray-900">
+                {orderSummary.total}
+              </p>
+              <div className="mt-2 flex justify-between items-center">
+                <p className="text-xs text-gray-500">All time orders</p>
+                <button
+                  onClick={() => setFilterStatus("")}
+                  className="flex items-center text-xs text-primary-600 hover:text-primary-800"
+                >
+                  View all
+                  <ArrowRight size={12} className="ml-1" />
+                </button>
+              </div>
+            </div>
+
+            <div className="bg-yellow-50 p-4 rounded-md border border-yellow-100">
+              <h3 className="text-sm font-medium text-gray-600 flex items-center">
+                <Package size={16} className="mr-1.5 text-yellow-500" />
+                Pending Orders
+              </h3>
+              <p className="mt-1 text-2xl font-semibold text-gray-900">
+                {orderSummary.pending}
+              </p>
+              <div className="mt-2 flex justify-between items-center">
+                <p className="text-xs text-gray-500">Need attention</p>
+                <button
+                  onClick={() => setFilterStatus("pending")}
+                  className="flex items-center text-xs text-yellow-600 hover:text-yellow-800"
+                >
+                  View orders
+                  <ArrowRight size={12} className="ml-1" />
+                </button>
+              </div>
+            </div>
+
+            <div className="bg-blue-50 p-4 rounded-md border border-blue-100">
+              <h3 className="text-sm font-medium text-gray-600 flex items-center">
+                <TruckIcon size={16} className="mr-1.5 text-blue-500" />
+                In Transit
+              </h3>
+              <p className="mt-1 text-2xl font-semibold text-gray-900">
+                {orderSummary.processing + orderSummary.inTransit}
+              </p>
+              <div className="mt-2 flex justify-between items-center">
+                <p className="text-xs text-gray-500">Processing & shipping</p>
+                <div className="flex space-x-2">
+                  <button
+                    onClick={() => setFilterStatus("processing")}
+                    className="flex items-center text-xs text-blue-600 hover:text-blue-800"
+                  >
+                    Processing
+                    <ArrowRight size={12} className="ml-1" />
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-green-50 p-4 rounded-md border border-green-100">
+              <h3 className="text-sm font-medium text-gray-600 flex items-center">
+                <BarChart size={16} className="mr-1.5 text-green-500" />
+                Sales Revenue
+              </h3>
+              <p className="mt-1 text-2xl font-semibold text-gray-900">
+                TZS {orderSummary.estimatedRevenue.toLocaleString()}
+              </p>
+              <div className="mt-2 flex justify-between items-center">
+                <p className="text-xs text-gray-500">
+                  From {orderSummary.total} orders
+                </p>
+                <button
+                  onClick={() => setFilterStatus("delivered")}
+                  className="flex items-center text-xs text-green-600 hover:text-green-800"
+                >
+                  Completed
+                  <ArrowRight size={12} className="ml-1" />
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* Search and filters */}
       <div className="mb-6 flex flex-col sm:flex-row gap-4">
         <div className="relative flex-1">
@@ -129,7 +257,7 @@ const SellerOrdersPage: React.FC = () => {
               <option value="">All Statuses</option>
               <option value="pending">Pending</option>
               <option value="processing">Processing</option>
-              <option value="shipped">Shipped</option>
+              <option value="shipping">In Transit</option>
               <option value="delivered">Delivered</option>
               <option value="cancelled">Cancelled</option>
             </select>
