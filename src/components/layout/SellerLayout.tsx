@@ -7,6 +7,7 @@ import {
   Settings,
   ShoppingBag,
   User,
+  Wallet,
 } from "lucide-react";
 import React from "react";
 import {
@@ -39,6 +40,11 @@ const SellerLayout: React.FC = () => {
       name: "Products",
       path: "/seller/products",
       icon: <Package size={20} />,
+    },
+    {
+      name: "Payouts",
+      path: "/seller/payouts",
+      icon: <Wallet size={20} />,
     },
     {
       name: "Settings",
@@ -196,6 +202,18 @@ const SellerLayout: React.FC = () => {
             >
               <Package size={20} />
               <span className="text-xs mt-1">Products</span>
+            </NavLink>
+
+            <NavLink
+              to="/seller/payouts"
+              className={({ isActive }: { isActive: boolean }) =>
+                `flex flex-col items-center py-2 px-3 ${
+                  isActive ? "text-primary-600" : "text-gray-500"
+                }`
+              }
+            >
+              <Wallet size={20} />
+              <span className="text-xs mt-1">Payouts</span>
             </NavLink>
           </>
         )}

@@ -270,3 +270,37 @@ export interface PaymentInitiationRequest {
   provider?: "MPESA" | "TIGOPESA" | "AIRTELMONEY";
   additionalData?: Record<string, string>;
 }
+
+// Payout types
+export interface SellerPayoutRequest {
+  amount: number;
+  paymentMethod: string;
+  paymentDetails: {
+    phone: string;
+    operator: string;
+  };
+  note?: string;
+}
+
+export interface SellerPayout {
+  id: string;
+  sellerId: string;
+  amount: string;
+  reference: string;
+  status: "pending" | "processing" | "completed" | "failed" | "cancelled";
+  paymentMethod: string;
+  metadata: {
+    phone: string;
+    operator: string;
+  };
+  createdAt: string;
+  updatedAt: string;
+  note?: string | null;
+}
+
+export interface SellerEarningsSummary {
+  totalEarnings: string;
+  totalPlatformFees: string;
+  totalNetEarnings: string;
+  totalPayouts: string;
+}

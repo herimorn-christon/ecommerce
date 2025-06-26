@@ -20,9 +20,11 @@ import ProductDetailPage from "./pages/ProductDetailPage";
 import ProductsPage from "./pages/ProductsPage";
 import ProfilePage from "./pages/ProfilePage";
 import AddProductPage from "./pages/seller/AddProductPage";
+import RequestPayoutPage from "./pages/seller/RequestPayoutPage";
 import SellerDashboardPage from "./pages/seller/SellerDashboardPage";
 import SellerOrderDetailPage from "./pages/seller/SellerOrderDetailPage";
 import SellerOrdersPage from "./pages/seller/SellerOrdersPage";
+import SellerPayoutsPage from "./pages/seller/SellerPayoutsPage";
 import SellerProductDetailPage from "./pages/seller/SellerProductDetailPage";
 import SellerProductsPage from "./pages/seller/SellerProductsPage";
 import SellerProfileFormPage from "./pages/seller/SellerProfileFormPage";
@@ -161,12 +163,16 @@ function App() {
                 path="products/view/:id"
                 element={<SellerProductDetailPage />}
               />
+              <Route path="payouts" element={<SellerPayoutsPage />} />
+              <Route path="payouts/request" element={<RequestPayoutPage />} />
               <Route path="settings" element={<SellerSettingsPage />} />
               <Route
                 path="profile/create"
                 element={<SellerProfileFormPage />}
               />
               <Route path="profile/edit" element={<SellerProfileFormPage />} />
+              <Route path="payouts" element={<SellerPayoutsPage />} />
+              <Route path="payouts/request" element={<RequestPayoutPage />} />
               <Route
                 index
                 element={<Navigate to="/seller/dashboard" replace />}
