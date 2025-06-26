@@ -9,6 +9,7 @@ import {
 import Footer from "./components/layout/Footer";
 import Header from "./components/layout/Header";
 import SellerLayout from "./components/layout/SellerLayout";
+import TransporterLayout from "./components/layout/TransporterLayout";
 import AuthPage from "./pages/AuthPage";
 import CartPage from "./pages/CartPage";
 import CheckoutPage from "./pages/CheckoutPage";
@@ -30,6 +31,7 @@ import SellerProductsPage from "./pages/seller/SellerProductsPage";
 import SellerProfileFormPage from "./pages/seller/SellerProfileFormPage";
 import SellerSettingsPage from "./pages/seller/SellerSettingsPage";
 import SellerRegistrationPage from "./pages/SellerRegistrationPage";
+import TransporterDashboardPage from "./pages/transporter/TransporterDashboardPage";
 import TransporterRegistrationPage from "./pages/TransporterRegistrationPage";
 import WishlistPage from "./pages/WishlistPage";
 import { useAppDispatch, useAppSelector } from "./redux/hooks";
@@ -195,6 +197,22 @@ function App() {
               path="/seller-profile/create"
               element={<Navigate to="/seller/profile/create" replace />}
             />
+
+            {/* Transporter Routes with TransporterLayout */}
+            <Route
+              path="/transporter"
+              element={
+                <ProtectedRoute>
+                  <TransporterLayout />
+                </ProtectedRoute>
+              }
+            >
+              <Route path="dashboard" element={<TransporterDashboardPage />} />
+              <Route
+                index
+                element={<Navigate to="/transporter/dashboard" replace />}
+              />
+            </Route>
           </Routes>
         </main>
 

@@ -26,6 +26,9 @@ const Header: React.FC = () => {
   // Check if user has seller role
   const isUserSeller = user?.roles?.includes("seller");
 
+  // Check if user has transporter role
+  const isUserTransporter = user?.roles?.includes("transporter");
+
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -94,6 +97,27 @@ const Header: React.FC = () => {
           </div>
 
           <nav className="hidden md:flex items-center space-x-6">
+            {/* Role-based navigation links */}
+            {isAuthenticated && isUserSeller && (
+              <Link
+                to="/seller/dashboard"
+                className="flex items-center hover:text-blue-200 transition-colors font-medium py-1 px-3 rounded bg-white/10 hover:bg-white/20"
+              >
+                <LayoutDashboard size={18} className="mr-1.5" />
+                <span>Seller</span>
+              </Link>
+            )}
+
+            {isAuthenticated && isUserTransporter && (
+              <Link
+                to="/transporter/dashboard"
+                className="flex items-center hover:text-blue-200 transition-colors font-medium py-1 px-3 rounded bg-white/10 hover:bg-white/20"
+              >
+                <LayoutDashboard size={18} className="mr-1.5" />
+                <span>Transporter</span>
+              </Link>
+            )}
+
             {/* Always visible icons */}
             <Link
               to="/wishlist"
@@ -144,14 +168,7 @@ const Header: React.FC = () => {
                     >
                       Orders
                     </Link>
-                    {isUserSeller && (
-                      <Link
-                        to="/seller/dashboard"
-                        className="block px-4 py-2 text-gray-800 hover:bg-primary-50"
-                      >
-                        Dashboard
-                      </Link>
-                    )}
+                    {/* Dashboard links now appear in the main navigation */}
                     <button
                       onClick={handleLogout}
                       className="block w-full text-left px-4 py-2 text-gray-800 hover:bg-primary-50"
@@ -265,7 +282,20 @@ const Header: React.FC = () => {
                   >
                     <div className="flex items-center">
                       <LayoutDashboard size={20} className="mr-2" />
-                      <span>Dashboard</span>
+                      <span>Seller Dashboard</span>
+                    </div>
+                  </Link>
+                )}
+
+                {isUserTransporter && (
+                  <Link
+                    to="/transporter/dashboard"
+                    className="block py-2 hover:bg-primary-600 px-2 rounded"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    <div className="flex items-center">
+                      <LayoutDashboard size={20} className="mr-2" />
+                      <span>Transporter Dashboard</span>
                     </div>
                   </Link>
                 )}
