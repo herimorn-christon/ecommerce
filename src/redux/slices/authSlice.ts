@@ -23,6 +23,31 @@ const initialState: AuthState = {
 };
 
 // Async thunks
+export const registerTransporter = createAsyncThunk(
+  "auth/registerTransporter",
+  async (
+    userData: {
+      name: string;
+      phoneNumber: string;
+      email: string;
+      businessName: string;
+    },
+    { rejectWithValue }
+  ) => {
+    try {
+      console.log("Register transporter thunk with data:", userData);
+      const response = await authService.registerTransporter(userData);
+      console.log("Register transporter response:", response);
+      return { ...response, phoneNumber: userData.phoneNumber };
+    } catch (error: any) {
+      console.error("Register transporter error:", error);
+      return rejectWithValue(
+        error.response?.data?.message || "Transporter registration failed"
+      );
+    }
+  }
+);
+
 export const registerSeller = createAsyncThunk(
   "auth/registerSeller",
   async (
@@ -108,7 +133,26 @@ const authSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      // Register
+      // Register transporter
+      .addCase(registerTransporter.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(
+        registerTransporter.fulfilled,
+        (state, action: PayloadAction<any>) => {
+          state.isLoading = false;
+          state.otpSent = true;
+          state.tempPhoneNumber = action.payload.phoneNumber;
+          console.log("Transporter registration successful:", action.payload);
+        }
+      )
+      .addCase(registerTransporter.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload as string;
+      })
+
+      // Register seller
       .addCase(registerSeller.pending, (state) => {
         state.isLoading = true;
         state.error = null;

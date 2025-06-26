@@ -13,6 +13,17 @@ export const authService = {
     return response.data;
   },
 
+  registerTransporter: async (data: {
+    name: string;
+    phoneNumber: string;
+    email: string;
+    businessName: string;
+  }) => {
+    console.log("Registering transporter with data:", data);
+    const response = await api.post("/auth/register/transporter", data);
+    return response.data;
+  },
+
   loginWithPhone: async (phoneNumber: string) => {
     const response = await api.post("/auth/login/phone", { phoneNumber });
     return response.data;

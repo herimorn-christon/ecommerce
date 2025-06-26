@@ -30,6 +30,7 @@ import SellerProductsPage from "./pages/seller/SellerProductsPage";
 import SellerProfileFormPage from "./pages/seller/SellerProfileFormPage";
 import SellerSettingsPage from "./pages/seller/SellerSettingsPage";
 import SellerRegistrationPage from "./pages/SellerRegistrationPage";
+import TransporterRegistrationPage from "./pages/TransporterRegistrationPage";
 import WishlistPage from "./pages/WishlistPage";
 import { useAppDispatch, useAppSelector } from "./redux/hooks";
 import { fetchUserProfile } from "./redux/slices/authSlice";
@@ -80,6 +81,10 @@ function App() {
             <Route
               path="/register-seller"
               element={<SellerRegistrationPage />}
+            />
+            <Route
+              path="/register-transporter"
+              element={<TransporterRegistrationPage />}
             />
             <Route path="/verify-otp" element={<AuthPage />} />
             <Route path="/products" element={<ProductsPage />} />

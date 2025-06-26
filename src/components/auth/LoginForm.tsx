@@ -98,6 +98,18 @@ const LoginForm: React.FC = () => {
               </button>
             </p>
           </div>
+          <div className="mt-2 text-center">
+            <p className="text-gray-600">
+              Want to provide delivery services?{" "}
+              <button
+                type="button"
+                onClick={() => navigate("/register-transporter")}
+                className="text-blue-600 hover:text-blue-800 font-medium"
+              >
+                Register as Transporter
+              </button>
+            </p>
+          </div>
         </form>
       </div>
     </div>
