@@ -21,6 +21,7 @@ import ProductsPage from "./pages/ProductsPage";
 import ProfilePage from "./pages/ProfilePage";
 import AddProductPage from "./pages/seller/AddProductPage";
 import SellerDashboardPage from "./pages/seller/SellerDashboardPage";
+import SellerOrderDetailPage from "./pages/seller/SellerOrderDetailPage";
 import SellerOrdersPage from "./pages/seller/SellerOrdersPage";
 import SellerProductDetailPage from "./pages/seller/SellerProductDetailPage";
 import SellerProductsPage from "./pages/seller/SellerProductsPage";
@@ -152,6 +153,7 @@ function App() {
             >
               <Route path="dashboard" element={<SellerDashboardPage />} />
               <Route path="orders" element={<SellerOrdersPage />} />
+              <Route path="orders/:id" element={<SellerOrderDetailPage />} />
               <Route path="products" element={<SellerProductsPage />} />
               <Route path="products/add" element={<AddProductPage />} />
               <Route path="products/edit/:id" element={<AddProductPage />} />

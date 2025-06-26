@@ -1,4 +1,4 @@
-import { PaymentCallback } from "../types";
+import { Order, PaymentCallback } from "../types";
 import api from "./api";
 
 const orderService = {
@@ -192,6 +192,35 @@ const orderService = {
   handlePaymentCallback: async (callbackData: PaymentCallback) => {
     const response = await api.post("/azampay/callback", callbackData);
     return response.data;
+  },
+
+  getSellerOrders: async (): Promise<{ orders: Order[]; count: number }> => {
+    try {
+      const response = await api.get("/orders/seller");
+      console.log("Seller orders API response:", response.data);
+      return response.data;
+    } catch (error: any) {
+      console.error("Failed to fetch seller orders:", error);
+      throw new Error(
+        error.response?.data?.message || "Failed to fetch seller orders"
+      );
+    }
+  },
+
+  // Update order status
+  updateOrderStatus: async (
+    orderId: string,
+    status: string
+  ): Promise<Order> => {
+    try {
+      const response = await api.patch(`/orders/${orderId}/status`, { status });
+      return response.data;
+    } catch (error: any) {
+      console.error("Failed to update order status:", error);
+      throw new Error(
+        error.response?.data?.message || "Failed to update order status"
+      );
+    }
   },
 };
 

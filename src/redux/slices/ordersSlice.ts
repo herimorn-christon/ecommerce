@@ -8,6 +8,8 @@ import { Address, Order, PaymentCallback } from "../../types";
 
 export interface OrdersState {
   orders: Order[];
+  sellerOrders: Order[];
+  sellerOrdersCount: number;
   selectedOrder: Order | null;
   addresses: Address[];
   isLoading: boolean;
@@ -18,6 +20,8 @@ export interface OrdersState {
 
 const initialState: OrdersState = {
   orders: [],
+  sellerOrders: [],
+  sellerOrdersCount: 0,
   selectedOrder: null,
   addresses: [],
   isLoading: false,
@@ -193,6 +197,22 @@ export const handlePaymentCallback = createAsyncThunk(
   }
 );
 
+export const fetchSellerOrders = createAsyncThunk(
+  "orders/fetchSellerOrders",
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await orderService.getSellerOrders();
+      console.log("Fetched seller orders in thunk:", response);
+      return response;
+    } catch (error: any) {
+      console.error("Error fetching seller orders in thunk:", error);
+      return rejectWithValue(
+        error.response?.data?.message || "Failed to fetch seller orders"
+      );
+    }
+  }
+);
+
 const ordersSlice = createSlice({
   name: "orders",
   initialState,
@@ -325,6 +345,22 @@ const ordersSlice = createSlice({
         state.error = null;
       })
       .addCase(fetchAddresses.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload as string;
+      })
+
+      // Fetch seller orders
+      .addCase(fetchSellerOrders.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(fetchSellerOrders.fulfilled, (state, action) => {
+        state.sellerOrders = action.payload.orders;
+        state.sellerOrdersCount = action.payload.count;
+        state.isLoading = false;
+        state.error = null;
+      })
+      .addCase(fetchSellerOrders.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload as string;
       });
