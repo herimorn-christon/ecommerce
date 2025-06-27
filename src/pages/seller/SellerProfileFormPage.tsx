@@ -84,10 +84,10 @@ const SellerProfileFormPage: React.FC = () => {
       )}`;
       const result = await sellerService.uploadFile(frontIdFile, fileName);
 
-      if (result?.url) {
+      if (result?.data?.url) {
         setForm({
           ...form,
-          frontNationalId: result.url,
+          frontNationalId: result?.data?.url,
         });
         setFrontIdUploaded(true);
         toast.success("Front ID uploaded successfully");
@@ -118,10 +118,10 @@ const SellerProfileFormPage: React.FC = () => {
       )}`;
       const result = await sellerService.uploadFile(backIdFile, fileName);
 
-      if (result?.url) {
+      if (result?.data?.url) {
         setForm({
           ...form,
-          backNationalId: result.url,
+          backNationalId: result?.data?.url,
         });
         setBackIdUploaded(true);
         toast.success("Back ID uploaded successfully");

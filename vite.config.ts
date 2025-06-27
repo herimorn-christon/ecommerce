@@ -15,6 +15,7 @@ export default defineConfig({
         main: resolve(__dirname, "index.html"),
       },
     },
+    chunkSizeWarningLimit: 1000,
     outDir: "dist",
   },
   resolve: {
