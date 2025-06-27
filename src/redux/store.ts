@@ -10,6 +10,7 @@ import ordersReducer from "./slices/ordersSlice";
 import payoutReducer from "./slices/payoutSlice";
 import productsReducer from "./slices/productsSlice";
 import sellerReducer from "./slices/sellerSlice";
+import transporterReducer from "./slices/transporterSlice";
 import websocketReducer from "./slices/websocketSlice";
 import wishlistReducer from "./slices/wishlistSlice";
 
@@ -29,6 +30,7 @@ const rootReducer = combineReducers({
   address: addressReducer,
   seller: sellerReducer,
   payouts: payoutReducer,
+  transporter: transporterReducer,
 });
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);

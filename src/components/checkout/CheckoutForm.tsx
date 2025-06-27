@@ -5,9 +5,11 @@ import { useAppDispatch, useAppSelector } from "../../redux/hooks";
 import { createAddress, fetchAddresses } from "../../redux/slices/addressSlice";
 import { clearCart } from "../../redux/slices/cartSlice";
 import { createOrder } from "../../redux/slices/ordersSlice";
+import { fetchTransporters } from "../../redux/slices/transporterSlice";
 import { Address } from "../../types";
 import Button from "../common/Button";
 import TextField from "../common/TextField";
+import TransporterSelect from "./TransporterSelect";
 
 interface CheckoutFormProps {
   onBack: () => void;
@@ -22,11 +24,17 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack }) => {
     return state.address;
   });
   const { user } = useAppSelector((state) => state.auth);
+  const { transporters, isLoading: transportersLoading } = useAppSelector(
+    (state) => state.transporter
+  );
 
   // State for the form
   const [selectedAddressId, setSelectedAddressId] = useState<string | "new">(
     ""
   );
+  const [selectedTransporterIds, setSelectedTransporterIds] = useState<
+    Record<string, string>
+  >({});
   const [deliveryOption, setDeliveryOption] = useState("standard");
   const [paymentMethod, setPaymentMethod] = useState("mobile_money");
   const [mobileMoneyNumber, setMobileMoneyNumber] = useState("");
@@ -62,6 +70,18 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack }) => {
     loadAddresses();
   }, [dispatch]);
 
+  // Fetch transporters when component mounts
+  useEffect(() => {
+    const loadTransporters = async () => {
+      try {
+        await dispatch(fetchTransporters()).unwrap();
+      } catch (err) {
+        console.error("Failed to fetch transporters:", err);
+      }
+    };
+    loadTransporters();
+  }, [dispatch]);
+
   // Set default address if available
   useEffect(() => {
     if (addresses.length > 0) {
@@ -86,6 +106,16 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack }) => {
     setNewAddress((prev) => ({
       ...prev,
       [name]: type === "checkbox" ? checked : value,
+    }));
+  };
+
+  const handleTransporterSelect = (
+    productId: string,
+    transporterId: string
+  ) => {
+    setSelectedTransporterIds((prev) => ({
+      ...prev,
+      [productId]: transporterId,
     }));
   };
 
@@ -195,10 +225,14 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack }) => {
 
         // Store the checkout data in localStorage for retrieval after payment
         const checkoutData = {
-          items: items.map((item) => ({
-            productId: item.productId,
-            quantity: item.quantity,
-          })),
+          items: items.map((item) => {
+            const transporterId = selectedTransporterIds[item.productId];
+            return {
+              productId: item.productId,
+              quantity: item.quantity,
+              ...(transporterId ? { transporterId } : {}),
+            };
+          }),
           deliveryOption,
           addressId: selectedAddressId,
           notes: notes || "",
@@ -219,6 +253,7 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack }) => {
             phone: formattedPhone,
             addressId: selectedAddressId,
             deliveryOption,
+            transporterSelections: selectedTransporterIds,
           },
         });
       } else {
@@ -226,12 +261,15 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack }) => {
         const transactionId = `COD-${Date.now()}-${Math.random()
           .toString(36)
           .substr(2, 9)}`;
-
         const orderData = {
-          items: items.map((item) => ({
-            productId: item.productId,
-            quantity: item.quantity,
-          })),
+          items: items.map((item) => {
+            const transporterId = selectedTransporterIds[item.productId];
+            return {
+              productId: item.productId,
+              quantity: item.quantity,
+              ...(transporterId ? { transporterId } : {}),
+            };
+          }),
           deliveryOption,
           paymentMethod: "cash_on_delivery",
           paymentDetails: {
@@ -544,6 +582,69 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack }) => {
                   <span className="ml-auto font-medium">TZS 10,000</span>
                 </label>
               </div>
+            </div>
+
+            {/* Select Transporters */}
+            <div className="bg-white rounded-lg shadow-md p-6">
+              <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                <Truck size={18} className="mr-2 text-blue-600" />
+                Select Transporters
+              </h3>
+
+              {transportersLoading ? (
+                <div className="animate-pulse space-y-4">
+                  <div className="h-20 bg-gray-200 rounded"></div>
+                  <div className="h-20 bg-gray-200 rounded"></div>
+                </div>
+              ) : (
+                <div className="space-y-6">
+                  {items.map((item) => (
+                    <div
+                      key={item.productId}
+                      className="border-b border-gray-200 pb-4 last:border-b-0 last:pb-0"
+                    >
+                      <div className="flex items-center mb-3">
+                        <div className="w-16 h-16 rounded overflow-hidden border border-gray-200 flex-shrink-0">
+                          {item.product.images &&
+                          item.product.images.length > 0 ? (
+                            <img
+                              src={item.product.images[0].url}
+                              alt={item.product.name}
+                              className="w-full h-full object-cover"
+                            />
+                          ) : (
+                            <div className="w-full h-full bg-gray-100 flex items-center justify-center text-gray-400">
+                              No image
+                            </div>
+                          )}
+                        </div>
+                        <div className="ml-3">
+                          <h4 className="font-medium text-gray-800">
+                            {item.product.name}
+                          </h4>
+                          <p className="text-sm text-gray-500">
+                            Quantity: {item.quantity} ×{" "}
+                            {parseInt(item.product.unitPrice).toLocaleString()}{" "}
+                            TZS
+                          </p>
+                        </div>
+                      </div>
+
+                      <TransporterSelect
+                        transporters={transporters}
+                        selectedTransporter={
+                          selectedTransporterIds[item.productId] || null
+                        }
+                        onSelect={(transporterId) =>
+                          handleTransporterSelect(item.productId, transporterId)
+                        }
+                        isLoading={transportersLoading}
+                        className="mt-2"
+                      />
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
 
             {/* Payment Method */}

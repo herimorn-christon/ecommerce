@@ -100,9 +100,7 @@ const paymentService = {
     referenceId: string
   ): Promise<PaymentStatusResponse> => {
     try {
-      const response = await paymentApi.get(
-        `/v1/azampay/status/${referenceId}`
-      );
+      const response = await paymentApi.get(`/azampay/status/${referenceId}`);
       return {
         reference: response.data.reference,
         message: response.data.message,

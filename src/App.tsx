@@ -32,6 +32,10 @@ import SellerProfileFormPage from "./pages/seller/SellerProfileFormPage";
 import SellerSettingsPage from "./pages/seller/SellerSettingsPage";
 import SellerRegistrationPage from "./pages/SellerRegistrationPage";
 import TransporterDashboardPage from "./pages/transporter/TransporterDashboardPage";
+import TransporterDeliveriesPage from "./pages/transporter/TransporterDeliveriesPage";
+import TransporterOrderDetailPage from "./pages/transporter/TransporterOrderDetailPage";
+import TransporterProfileEditPage from "./pages/transporter/TransporterProfileEditPage";
+import TransporterProfilePage from "./pages/transporter/TransporterProfilePage";
 import TransporterRegistrationPage from "./pages/TransporterRegistrationPage";
 import WishlistPage from "./pages/WishlistPage";
 import { useAppDispatch, useAppSelector } from "./redux/hooks";
@@ -208,6 +212,19 @@ function App() {
               }
             >
               <Route path="dashboard" element={<TransporterDashboardPage />} />
+              <Route
+                path="deliveries"
+                element={<TransporterDeliveriesPage />}
+              />
+              <Route
+                path="orders/:orderId"
+                element={<TransporterOrderDetailPage />}
+              />
+              <Route path="profile" element={<TransporterProfilePage />} />
+              <Route
+                path="profile/edit"
+                element={<TransporterProfileEditPage />}
+              />
               <Route
                 index
                 element={<Navigate to="/transporter/dashboard" replace />}

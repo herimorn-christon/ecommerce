@@ -65,7 +65,11 @@ export const fetchOrderById = createAsyncThunk(
 
 // Update the interface to match server's expected format
 interface CreateOrderData {
-  items: { productId: string; quantity: number }[];
+  items: {
+    productId: string;
+    quantity: number;
+    transporterId?: string; // Add transporterId field to each item
+  }[];
   deliveryOption: string;
   transactionId: string;
   paymentMethod: string;

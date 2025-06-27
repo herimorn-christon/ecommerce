@@ -140,6 +140,7 @@ export interface OrderItem {
   quantity: number;
   unitPrice: string;
   orderId: string;
+  transporterId?: string; // Add transporterId field
   createdAt: string;
   updatedAt: string;
   product: {
@@ -149,6 +150,7 @@ export interface OrderItem {
       url: string;
     }>;
   };
+  transporter?: Transporter; // Optional transporter relationship
 }
 
 export interface PaymentDetails {
@@ -303,4 +305,89 @@ export interface SellerEarningsSummary {
   totalPlatformFees: string;
   totalNetEarnings: string;
   totalPayouts: string;
+}
+
+// Transporter types
+export interface Transporter {
+  id: string;
+  businessName: string;
+  licenseImage?: string;
+  address?: string;
+  country?: string;
+  region?: string;
+  district?: string;
+  isVerified: boolean;
+  description?: string | null;
+  createdAt: string;
+  updatedAt: string;
+  userId: string;
+  user?: User;
+}
+
+// Transporter order detail type
+export interface TransporterOrderDetail {
+  id: string;
+  orderNumber: string;
+  trackingNumber: string | null;
+  status: string;
+  deliveryOption: string;
+  paymentMethod: string;
+  paymentDetails: {
+    provider: string;
+    phoneNumber: string;
+    transactionId: string;
+  };
+  totalAmount: string;
+  notes: string;
+  addressId: string;
+  userId: string;
+  transactionId: string;
+  createdAt: string;
+  updatedAt: string;
+  items: Array<{
+    id: string;
+    quantity: number;
+    unitPrice: string;
+    createdAt: string;
+    updatedAt: string;
+    orderId: string;
+    productId: string;
+    transporterId: string;
+    product: {
+      id: string;
+      name: string;
+      description: string;
+      images: Array<{ url: string }>;
+      seller: {
+        id: string;
+        businessName: string;
+        user: {
+          name: string;
+          phoneNumber: string;
+        };
+      };
+    };
+  }>;
+  address: {
+    id: string;
+    fullName: string;
+    phoneNumber: string;
+    addressLine1: string;
+    addressLine2?: string;
+    city: string;
+    region: string;
+    district: string;
+    postalCode?: string;
+    country: string;
+    isDefault: boolean;
+    createdAt: string;
+    updatedAt: string;
+    userId: string;
+  };
+  user: {
+    id: string;
+    name: string;
+    phoneNumber: string;
+    email: string;
+  };
 }

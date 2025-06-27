@@ -27,7 +27,9 @@ const PaymentPage: React.FC = () => {
   const [orderId, setOrderId] = useState<string | null>(null);
 
   // Get payment data from location state
-  const paymentData = location.state as PaymentPageLocationState;
+  const paymentData = location.state as PaymentPageLocationState & {
+    transporterSelections?: Record<string, string>;
+  };
 
   // Verify we have the necessary data
   useEffect(() => {
@@ -60,6 +62,16 @@ const PaymentPage: React.FC = () => {
       // Create order with the saved checkout data and transaction ID
       const orderData = {
         ...checkoutData,
+        // If transporterSelections are passed in the location state, use them to update the items
+        items: checkoutData.items.map((item: any) => {
+          // If we have a transporter selection for this product, include it
+          const transporterId =
+            paymentData.transporterSelections?.[item.productId];
+          return {
+            ...item,
+            ...(transporterId ? { transporterId } : {}),
+          };
+        }),
         paymentDetails: {
           provider: "M-Pesa",
           phoneNumber: paymentData?.phone || "",

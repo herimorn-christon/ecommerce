@@ -82,21 +82,6 @@ const TransporterLayout: React.FC = () => {
                 Profile
               </NavLink>
             </li>
-            <li>
-              <NavLink
-                to="/transporter/settings"
-                className={({ isActive }) =>
-                  `flex items-center px-3 py-2 rounded-md ${
-                    isActive
-                      ? "bg-primary-50 text-primary-600"
-                      : "text-gray-700 hover:bg-gray-100"
-                  }`
-                }
-              >
-                <Settings size={18} className="mr-2" />
-                Settings
-              </NavLink>
-            </li>
           </ul>
 
           <div className="border-t border-gray-200 mt-6 pt-6">
