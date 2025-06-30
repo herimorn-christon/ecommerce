@@ -194,19 +194,6 @@ const SellerOrderDetailPage: React.FC = () => {
               Mark as Processing
             </button>
           )}
-
-          {selectedOrder.status === "processing" && (
-            <button
-              onClick={() => handleUpdateStatus("shipped")}
-              className="inline-flex items-center px-3 py-1 border border-transparent rounded-md shadow-sm text-sm font-medium bg-indigo-600 text-white hover:bg-indigo-700"
-              disabled={updatingStatus}
-            >
-              {updatingStatus ? (
-                <Loader2 size={14} className="mr-1 animate-spin" />
-              ) : null}
-              Mark as Shipped
-            </button>
-          )}
         </div>
       </div>
 
