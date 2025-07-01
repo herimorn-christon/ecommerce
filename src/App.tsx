@@ -10,6 +10,7 @@ import Footer from "./components/layout/Footer";
 import Header from "./components/layout/Header";
 import SellerLayout from "./components/layout/SellerLayout";
 import TransporterLayout from "./components/layout/TransporterLayout";
+import AboutPage from "./pages/AboutPage";
 import AuthPage from "./pages/AuthPage";
 import CartPage from "./pages/CartPage";
 import CheckoutPage from "./pages/CheckoutPage";
@@ -96,6 +97,7 @@ function App() {
             <Route path="/products" element={<ProductsPage />} />
             <Route path="/products/:id" element={<ProductDetailPage />} />
             <Route path="/cart" element={<CartPage />} />
+            <Route path="/about" element={<AboutPage />} />
             <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
 
             {/* Protected routes */}

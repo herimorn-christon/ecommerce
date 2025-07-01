@@ -97,6 +97,20 @@ const Header: React.FC = () => {
           </div>
 
           <nav className="hidden md:flex items-center space-x-6">
+            {/* Main navigation links */}
+            <Link
+              to="/products"
+              className="hover:text-blue-200 transition-colors font-medium"
+            >
+              Products
+            </Link>
+            <Link
+              to="/about"
+              className="hover:text-blue-200 transition-colors font-medium"
+            >
+              About
+            </Link>
+
             {/* Role-based navigation links */}
             {isAuthenticated && isUserSeller && (
               <Link
@@ -223,6 +237,13 @@ const Header: React.FC = () => {
               onClick={() => setIsMenuOpen(false)}
             >
               Products
+            </Link>
+            <Link
+              to="/about"
+              className="block py-2 hover:bg-primary-600 px-2 rounded"
+              onClick={() => setIsMenuOpen(false)}
+            >
+              About
             </Link>
 
             {/* Always visible on mobile menu regardless of auth status */}

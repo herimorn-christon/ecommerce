@@ -39,8 +39,8 @@ const HomePage: React.FC = () => {
               Fresh Fish from Trusted Fishermen
             </h1>
             <p className="text-xl md:text-2xl mb-8 text-primary-100">
-              Discover high-quality, sustainably sourced fish from Tanzania's
-              finest fishing communities.
+              The leading digital marketplace for high-quality fish
+              products—delivered straight from local fishers to your table.
             </p>
             <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
               <Link
