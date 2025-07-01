@@ -110,6 +110,12 @@ const Header: React.FC = () => {
             >
               About
             </Link>
+            <Link
+              to="/contact"
+              className="hover:text-blue-200 transition-colors font-medium"
+            >
+              Contact
+            </Link>
 
             {/* Role-based navigation links */}
             {isAuthenticated && isUserSeller && (
@@ -244,6 +250,13 @@ const Header: React.FC = () => {
               onClick={() => setIsMenuOpen(false)}
             >
               About
+            </Link>
+            <Link
+              to="/contact"
+              className="block py-2 hover:bg-primary-600 px-2 rounded"
+              onClick={() => setIsMenuOpen(false)}
+            >
+              Contact
             </Link>
 
             {/* Always visible on mobile menu regardless of auth status */}
