@@ -15,6 +15,7 @@ import AuthPage from "./pages/AuthPage";
 import CartPage from "./pages/CartPage";
 import CheckoutPage from "./pages/CheckoutPage";
 import ContactPage from "./pages/ContactPage";
+import FAQPage from "./pages/FAQPage";
 import HomePage from "./pages/HomePage";
 import OrderCheckoutPage from "./pages/OrderCheckoutPage";
 import PaymentPage from "./pages/PaymentPage";
@@ -100,6 +101,7 @@ function App() {
             <Route path="/cart" element={<CartPage />} />
             <Route path="/about" element={<AboutPage />} />
             <Route path="/contact" element={<ContactPage />} />
+            <Route path="/faq" element={<FAQPage />} />
             <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
 
             {/* Protected routes */}
