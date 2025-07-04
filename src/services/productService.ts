@@ -3,8 +3,23 @@ import api from "./api";
 
 const productService = {
   getCategories: async (): Promise<Category[]> => {
-    const response = await api.get("/categories");
-    return response.data;
+    try {
+      const response = await api.get("/categories");
+      console.log("Categories API response:", response.data);
+
+      // Handle API response structure: { data: Category[], meta: { total, skip, take, hasMore } }
+      if (response.data && Array.isArray(response.data.data)) {
+        return response.data.data;
+      } else if (Array.isArray(response.data)) {
+        return response.data;
+      }
+
+      console.warn("Unexpected categories response structure:", response.data);
+      return [];
+    } catch (error) {
+      console.error("Error fetching categories:", error);
+      throw error;
+    }
   },
 
   getCategoryById: async (id: string): Promise<Category> => {
@@ -13,8 +28,23 @@ const productService = {
   },
 
   getProducts: async (): Promise<Product[]> => {
-    const response = await api.get("/products");
-    return response.data;
+    try {
+      const response = await api.get("/products");
+      console.log("Products API response:", response.data);
+
+      // Handle API response structure: { data: Product[], meta: { total, skip, take, hasMore } }
+      if (response.data && Array.isArray(response.data.data)) {
+        return response.data.data;
+      } else if (Array.isArray(response.data)) {
+        return response.data;
+      }
+
+      console.warn("Unexpected products response structure:", response.data);
+      return [];
+    } catch (error) {
+      console.error("Error fetching products:", error);
+      throw error;
+    }
   },
 
   getProductById: async (id: string): Promise<Product> => {
@@ -23,13 +53,46 @@ const productService = {
   },
 
   getProductsByCategory: async (categoryId: string): Promise<Product[]> => {
-    const response = await api.get(`/products/category/${categoryId}`);
-    return response.data;
+    try {
+      const response = await api.get(`/products/category/${categoryId}`);
+      console.log("Products by category API response:", response.data);
+
+      // Handle API response structure: { data: Product[], meta: { total, skip, take, hasMore } }
+      if (response.data && Array.isArray(response.data.data)) {
+        return response.data.data;
+      } else if (Array.isArray(response.data)) {
+        return response.data;
+      }
+
+      console.warn(
+        "Unexpected products by category response structure:",
+        response.data
+      );
+      return [];
+    } catch (error) {
+      console.error("Error fetching products by category:", error);
+      throw error;
+    }
   },
 
   getMyProducts: async (): Promise<Product[]> => {
-    const response = await api.get("/products/me");
-    return response.data;
+    try {
+      const response = await api.get("/products/me");
+      console.log("My products API response:", response.data);
+
+      // Handle API response structure: { data: Product[], meta: { total, skip, take, hasMore } }
+      if (response.data && Array.isArray(response.data.data)) {
+        return response.data.data;
+      } else if (Array.isArray(response.data)) {
+        return response.data;
+      }
+
+      console.warn("Unexpected my products response structure:", response.data);
+      return [];
+    } catch (error) {
+      console.error("Error fetching my products:", error);
+      throw error;
+    }
   },
 
   // Create a new product

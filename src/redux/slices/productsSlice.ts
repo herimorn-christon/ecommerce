@@ -29,8 +29,11 @@ export const fetchProducts = createAsyncThunk(
   "products/fetchProducts",
   async (_, { rejectWithValue }) => {
     try {
-      return await productService.getProducts();
+      const result = await productService.getProducts();
+      console.log("Fetched products:", result);
+      return result;
     } catch (error: any) {
+      console.error("Error fetching products:", error);
       return rejectWithValue(
         error.response?.data?.message || "Failed to fetch products"
       );
@@ -42,8 +45,11 @@ export const fetchCategories = createAsyncThunk(
   "products/fetchCategories",
   async (_, { rejectWithValue }) => {
     try {
-      return await productService.getCategories();
+      const result = await productService.getCategories();
+      console.log("Fetched categories:", result);
+      return result;
     } catch (error: any) {
+      console.error("Error fetching categories:", error);
       return rejectWithValue(
         error.response?.data?.message || "Failed to fetch categories"
       );
@@ -145,10 +151,12 @@ const productsSlice = createSlice({
         fetchProducts.fulfilled,
         (state, action: PayloadAction<Product[]>) => {
           state.isLoading = false;
+          console.log("Setting products to state:", action.payload);
           state.products = action.payload;
           state.filteredProducts = state.selectedCategory
             ? action.payload.filter(
-                (product) => product.categoryId === state.selectedCategory?.id
+                (product: Product) =>
+                  product.categoryId === state.selectedCategory?.id
               )
             : action.payload;
         }
@@ -167,6 +175,7 @@ const productsSlice = createSlice({
         fetchCategories.fulfilled,
         (state, action: PayloadAction<Category[]>) => {
           state.isLoading = false;
+          console.log("Setting categories to state:", action.payload);
           state.categories = action.payload;
         }
       )

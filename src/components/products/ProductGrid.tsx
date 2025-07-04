@@ -1,7 +1,7 @@
-import React from 'react';
-import { Product } from '../../types';
-import ProductCard from './ProductCard';
-import LoadingSpinner from '../common/LoadingSpinner';
+import React from "react";
+import { Product } from "../../types";
+import LoadingSpinner from "../common/LoadingSpinner";
+import ProductCard from "./ProductCard";
 
 interface ProductGridProps {
   products: Product[];
@@ -9,7 +9,11 @@ interface ProductGridProps {
   error: string | null;
 }
 
-const ProductGrid: React.FC<ProductGridProps> = ({ products, isLoading, error }) => {
+const ProductGrid: React.FC<ProductGridProps> = ({
+  products,
+  isLoading,
+  error,
+}) => {
   if (isLoading) {
     return (
       <div className="flex justify-center items-center py-20">
@@ -26,7 +30,10 @@ const ProductGrid: React.FC<ProductGridProps> = ({ products, isLoading, error })
     );
   }
 
-  if (products.length === 0) {
+  // Ensure products is an array before checking length or mapping
+  const safeProducts = Array.isArray(products) ? products : [];
+
+  if (safeProducts.length === 0) {
     return (
       <div className="bg-blue-50 border border-blue-200 text-blue-700 px-4 py-8 rounded text-center">
         <p className="text-lg font-medium">No products found</p>
@@ -37,7 +44,7 @@ const ProductGrid: React.FC<ProductGridProps> = ({ products, isLoading, error })
 
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-      {products.map(product => (
+      {safeProducts.map((product) => (
         <ProductCard key={product.id} product={product} />
       ))}
     </div>

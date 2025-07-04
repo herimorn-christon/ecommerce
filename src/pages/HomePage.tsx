@@ -18,7 +18,9 @@ const HomePage: React.FC = () => {
   }, [dispatch]);
 
   // Get featured products (we'll just use the first 8 for now)
-  const featuredProducts = products.slice(0, 8);
+  // Ensure products is an array before calling slice to prevent runtime errors
+  const featuredProducts =
+    Array.isArray(products) && products.length > 0 ? products.slice(0, 8) : [];
 
   return (
     <div className="min-h-screen">
@@ -80,27 +82,35 @@ const HomePage: React.FC = () => {
             </div>
           ) : (
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-              {categories.slice(0, 8).map((category) => (
-                <Link
-                  key={category.id}
-                  to={`/products?category=${category.id}`}
-                  className="bg-white rounded-lg shadow-md overflow-hidden transform transition-transform hover:-translate-y-1 hover:shadow-lg"
-                >
-                  <div className="relative h-40">
-                    <img
-                      src={category.image}
-                      alt={category.name}
-                      className="w-full h-full object-cover"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent opacity-70"></div>
-                    <div className="absolute bottom-0 left-0 p-4">
-                      <h3 className="text-xl font-bold text-white">
-                        {category.name}
-                      </h3>
+              {Array.isArray(categories) &&
+                categories.slice(0, 8).map((category) => (
+                  <Link
+                    key={category.id}
+                    to={`/products?category=${category.id}`}
+                    className="bg-white rounded-lg shadow-md overflow-hidden transform transition-transform hover:-translate-y-1 hover:shadow-lg"
+                  >
+                    <div className="relative h-40">
+                      <img
+                        src={category.image}
+                        alt={category.name}
+                        className="w-full h-full object-cover"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent opacity-70"></div>
+                      <div className="absolute bottom-0 left-0 p-4">
+                        <h3 className="text-xl font-bold text-white">
+                          {category.name}
+                        </h3>
+                      </div>
                     </div>
+                  </Link>
+                ))}
+              {(!Array.isArray(categories) || categories.length === 0) &&
+                !isLoading &&
+                !error && (
+                  <div className="col-span-full text-center py-8 text-gray-500">
+                    No categories available at the moment.
                   </div>
-                </Link>
-              ))}
+                )}
             </div>
           )}
         </div>
@@ -139,6 +149,11 @@ const HomePage: React.FC = () => {
               {featuredProducts.map((product) => (
                 <ProductCard key={product.id} product={product} />
               ))}
+              {featuredProducts.length === 0 && !isLoading && !error && (
+                <div className="col-span-full text-center py-8 text-gray-500">
+                  No products available at the moment.
+                </div>
+              )}
             </div>
           )}
         </div>
