@@ -73,7 +73,7 @@ const ProductDetailPage: React.FC = () => {
                     />
                   </div>
                   <div className="p-4">
-                    <h3 className="font-medium text-gray-900 mb-1 truncate">
+                    <h3 className="font-medium text-gray-900 mb-1 truncate uppercase">
                       {product.name}
                     </h3>
                     <p className="text-lg font-semibold text-primary-600">

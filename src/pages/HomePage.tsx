@@ -4,7 +4,10 @@ import { Link } from "react-router-dom";
 import LoadingSpinner from "../components/common/LoadingSpinner";
 import ProductCard from "../components/products/ProductCard";
 import { useAppDispatch, useAppSelector } from "../redux/hooks";
-import { fetchCategories, fetchProducts } from "../redux/slices/productsSlice";
+import {
+  fetchCategories,
+  fetchProductsPaginated,
+} from "../redux/slices/productsSlice";
 
 const HomePage: React.FC = () => {
   const dispatch = useAppDispatch();
@@ -13,7 +16,7 @@ const HomePage: React.FC = () => {
   );
 
   useEffect(() => {
-    dispatch(fetchProducts());
+    dispatch(fetchProductsPaginated({ take: 8 })); // Get only 8 products for featured section
     dispatch(fetchCategories());
   }, [dispatch]);
 

@@ -619,7 +619,7 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack }) => {
                           )}
                         </div>
                         <div className="ml-3">
-                          <h4 className="font-medium text-gray-800">
+                          <h4 className="font-medium text-gray-800 uppercase">
                             {item.product.name}
                           </h4>
                           <p className="text-sm text-gray-500">
@@ -742,7 +742,7 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack }) => {
                       className="flex justify-between py-2 border-b border-gray-100"
                     >
                       <div>
-                        <span className="text-gray-800">
+                        <span className="text-gray-800 uppercase">
                           {item.product.name}
                         </span>
                         <span className="text-gray-500 text-sm block">

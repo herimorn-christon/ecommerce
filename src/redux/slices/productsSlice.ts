@@ -1,6 +1,11 @@
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import productService from "../../services/productService";
-import { Category, Product } from "../../types";
+import {
+  Category,
+  PaginationMeta,
+  PaginationParams,
+  Product,
+} from "../../types";
 
 interface ProductsState {
   products: Product[];
@@ -11,6 +16,10 @@ interface ProductsState {
   relatedProducts: Product[];
   isLoading: boolean;
   error: string | null;
+  // Pagination state
+  pagination: PaginationMeta;
+  currentPage: number;
+  itemsPerPage: number;
 }
 
 const initialState: ProductsState = {
@@ -22,6 +31,14 @@ const initialState: ProductsState = {
   relatedProducts: [],
   isLoading: false,
   error: null,
+  pagination: {
+    total: 0,
+    skip: 0,
+    take: 10,
+    hasMore: false,
+  },
+  currentPage: 1,
+  itemsPerPage: 10,
 };
 
 // Async thunks for products
@@ -34,6 +51,23 @@ export const fetchProducts = createAsyncThunk(
       return result;
     } catch (error: any) {
       console.error("Error fetching products:", error);
+      return rejectWithValue(
+        error.response?.data?.message || "Failed to fetch products"
+      );
+    }
+  }
+);
+
+// Async thunk for paginated products
+export const fetchProductsPaginated = createAsyncThunk(
+  "products/fetchProductsPaginated",
+  async (params: PaginationParams = {}, { rejectWithValue }) => {
+    try {
+      const result = await productService.getProductsPaginated(params);
+      console.log("Fetched products paginated:", result);
+      return result;
+    } catch (error: any) {
+      console.error("Error fetching products paginated:", error);
       return rejectWithValue(
         error.response?.data?.message || "Failed to fetch products"
       );
@@ -139,6 +173,13 @@ const productsSlice = createSlice({
           : filtered;
       }
     },
+    setCurrentPage: (state, action: PayloadAction<number>) => {
+      state.currentPage = action.payload;
+    },
+    setItemsPerPage: (state, action: PayloadAction<number>) => {
+      state.itemsPerPage = action.payload;
+      state.currentPage = 1; // Reset to first page when changing items per page
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -162,6 +203,30 @@ const productsSlice = createSlice({
         }
       )
       .addCase(fetchProducts.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload as string;
+      })
+
+      // Fetch paginated products
+      .addCase(fetchProductsPaginated.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(fetchProductsPaginated.fulfilled, (state, action) => {
+        state.isLoading = false;
+        console.log("Setting paginated products to state:", action.payload);
+        state.products = action.payload.data;
+        state.pagination = action.payload.meta;
+        state.currentPage =
+          Math.floor(action.payload.meta.skip / action.payload.meta.take) + 1;
+        state.filteredProducts = state.selectedCategory
+          ? action.payload.data.filter(
+              (product: Product) =>
+                product.categoryId === state.selectedCategory?.id
+            )
+          : action.payload.data;
+      })
+      .addCase(fetchProductsPaginated.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload as string;
       })
@@ -236,6 +301,11 @@ const productsSlice = createSlice({
   },
 });
 
-export const { setSelectedCategory, clearSelectedProduct, searchProducts } =
-  productsSlice.actions;
+export const {
+  setSelectedCategory,
+  clearSelectedProduct,
+  searchProducts,
+  setCurrentPage,
+  setItemsPerPage,
+} = productsSlice.actions;
 export default productsSlice.reducer;

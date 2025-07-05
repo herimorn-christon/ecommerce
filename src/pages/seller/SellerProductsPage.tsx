@@ -413,7 +413,7 @@ const SellerProductsPage: React.FC = () => {
                           )}
                         </div>
                         <div className="max-w-sm">
-                          <div className="text-sm font-medium text-gray-900 truncate max-w-xs">
+                          <div className="text-sm font-medium text-gray-900 truncate max-w-xs uppercase">
                             {product.name}
                           </div>
                           <div className="text-xs text-gray-500 truncate max-w-xs">

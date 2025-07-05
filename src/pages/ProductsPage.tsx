@@ -1,24 +1,57 @@
-import React, { useEffect, useState } from 'react';
-import { useLocation } from 'react-router-dom';
-import { useAppDispatch, useAppSelector } from '../redux/hooks';
-import { fetchProducts, fetchCategories, setSelectedCategory, searchProducts } from '../redux/slices/productsSlice';
-import ProductGrid from '../components/products/ProductGrid';
-import CategoryFilter from '../components/products/CategoryFilter';
-import { Search } from 'lucide-react';
+import { Search } from "lucide-react";
+import React, { useEffect, useState } from "react";
+import Pagination from "../components/common/Pagination";
+import CategoryFilter from "../components/products/CategoryFilter";
+import ProductGrid from "../components/products/ProductGrid";
+import { useAppDispatch, useAppSelector } from "../redux/hooks";
+import {
+  fetchCategories,
+  fetchProductsPaginated,
+  setCurrentPage,
+  setItemsPerPage,
+} from "../redux/slices/productsSlice";
 
 const ProductsPage: React.FC = () => {
   const dispatch = useAppDispatch();
-  const location = useLocation();
-  const { filteredProducts, categories, isLoading, error } = useAppSelector(state => state.products);
+  const {
+    filteredProducts,
+    categories,
+    isLoading,
+    error,
+    pagination,
+    currentPage,
+    itemsPerPage,
+    selectedCategory,
+  } = useAppSelector((state) => state.products);
 
-  const [searchTerm, setSearchTerm] = useState('');
-  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
+  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
+
+  // Calculate pagination values
+  const totalPages = Math.ceil(pagination.total / itemsPerPage);
+
+  // Load products with pagination
+  const loadProducts = (
+    page: number = currentPage,
+    search?: string,
+    categoryId?: string
+  ) => {
+    const skip = (page - 1) * itemsPerPage;
+    dispatch(
+      fetchProductsPaginated({
+        skip,
+        take: itemsPerPage,
+        search: search || debouncedSearchTerm || undefined,
+        categoryId: categoryId || selectedCategory?.id || undefined,
+      })
+    );
+  };
 
   // Debounce the search term
   useEffect(() => {
     const handler = setTimeout(() => {
       setDebouncedSearchTerm(searchTerm);
-    }, 500); // Adjust debounce delay as needed (500ms here)
+    }, 500);
 
     return () => {
       clearTimeout(handler);
@@ -27,25 +60,37 @@ const ProductsPage: React.FC = () => {
 
   // Trigger search when the debounced search term changes
   useEffect(() => {
-    if (debouncedSearchTerm) {
-      dispatch(searchProducts(debouncedSearchTerm));
-    } else {
-      dispatch(fetchProducts()); // Fetch all products if the search term is cleared
-    }
-  }, [debouncedSearchTerm, dispatch]);
+    loadProducts(1, debouncedSearchTerm);
+    dispatch(setCurrentPage(1)); // Reset to first page on search
+  }, [debouncedSearchTerm, selectedCategory]);
 
-  // Fetch categories on initial load
+  // Fetch categories and initial products on mount
   useEffect(() => {
     dispatch(fetchCategories());
-    dispatch(fetchProducts());
-  }, [dispatch]);
+    loadProducts(1);
+  }, []);
+
+  // Handle page change
+  const handlePageChange = (page: number) => {
+    dispatch(setCurrentPage(page));
+    loadProducts(page);
+  };
+
+  // Handle items per page change
+  const handleItemsPerPageChange = (newItemsPerPage: number) => {
+    dispatch(setItemsPerPage(newItemsPerPage));
+    dispatch(setCurrentPage(1));
+    loadProducts(1);
+  };
 
   return (
     <div className="min-h-screen bg-gray-50 py-8">
       <div className="container mx-auto px-4">
         <div className="flex flex-col md:flex-row justify-between items-start mb-6">
           <div>
-            <h1 className="text-3xl font-bold text-gray-800 mb-2">Fish Products</h1>
+            <h1 className="text-3xl font-bold text-gray-800 mb-2">
+              Fish Products
+            </h1>
             <p className="text-gray-600">Browse our selection of fresh fish</p>
           </div>
 
@@ -73,19 +118,29 @@ const ProductsPage: React.FC = () => {
         <div className="flex flex-col md:flex-row">
           {/* Sidebar for Desktop */}
           <div className="hidden md:block md:w-64 flex-shrink-0 mr-8">
-            <CategoryFilter 
-              categories={categories}
-              isLoading={isLoading}
-            />
+            <CategoryFilter categories={categories} isLoading={isLoading} />
           </div>
 
           {/* Main Content */}
           <div className="flex-1">
-            <ProductGrid 
+            <ProductGrid
               products={filteredProducts}
               isLoading={isLoading}
               error={error}
             />
+
+            {/* Pagination */}
+            {!isLoading && !error && pagination.total > 0 && (
+              <Pagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={handlePageChange}
+                itemsPerPage={itemsPerPage}
+                totalItems={pagination.total}
+                onItemsPerPageChange={handleItemsPerPageChange}
+                disabled={isLoading}
+              />
+            )}
           </div>
         </div>
       </div>

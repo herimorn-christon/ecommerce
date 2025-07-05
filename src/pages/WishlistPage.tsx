@@ -154,7 +154,7 @@ const WishlistPage: React.FC = () => {
               <div className="md:w-3/6 md:px-6">
                 <Link
                   to={`/products/${product.id}`}
-                  className="text-xl font-semibold text-gray-800 hover:text-blue-600"
+                  className="text-xl font-semibold text-gray-800 hover:text-blue-600 uppercase"
                 >
                   {product.name}
                 </Link>

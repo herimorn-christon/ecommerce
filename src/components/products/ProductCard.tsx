@@ -72,7 +72,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
             </span>
           </div>
 
-          <h3 className="text-lg font-semibold text-gray-800 mb-1">
+          <h3 className="text-lg font-semibold text-gray-800 mb-1 uppercase">
             {product.name}
           </h3>
 

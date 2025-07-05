@@ -172,7 +172,7 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({
             </span>
           </div>
 
-          <h1 className="text-3xl font-bold text-gray-800 mb-2">
+          <h1 className="text-3xl font-bold text-gray-800 mb-2 uppercase">
             {product.name}
           </h1>
 

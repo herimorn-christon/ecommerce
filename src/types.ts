@@ -1,3 +1,23 @@
+// Pagination types
+export interface PaginationMeta {
+  total: number;
+  skip: number;
+  take: number;
+  hasMore: boolean;
+}
+
+export interface PaginatedResponse<T> {
+  data: T[];
+  meta: PaginationMeta;
+}
+
+export interface PaginationParams {
+  skip?: number;
+  take?: number;
+  search?: string;
+  categoryId?: string;
+}
+
 export interface WishlistItem {
   productId: string;
   product: Product;

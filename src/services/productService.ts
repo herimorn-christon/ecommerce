@@ -1,4 +1,10 @@
-import { Category, Product, ProductFormData } from "../types";
+import {
+  Category,
+  PaginatedResponse,
+  PaginationParams,
+  Product,
+  ProductFormData,
+} from "../types";
 import api from "./api";
 
 const productService = {
@@ -27,9 +33,27 @@ const productService = {
     return response.data;
   },
 
-  getProducts: async (): Promise<Product[]> => {
+  getProducts: async (params?: PaginationParams): Promise<Product[]> => {
     try {
-      const response = await api.get("/products");
+      const queryParams = new URLSearchParams();
+
+      if (params?.skip !== undefined) {
+        queryParams.append("skip", params.skip.toString());
+      }
+      if (params?.take !== undefined) {
+        queryParams.append("take", params.take.toString());
+      }
+      if (params?.search) {
+        queryParams.append("search", params.search);
+      }
+      if (params?.categoryId) {
+        queryParams.append("categoryId", params.categoryId);
+      }
+
+      const url = `/products${
+        queryParams.toString() ? `?${queryParams.toString()}` : ""
+      }`;
+      const response = await api.get(url);
       console.log("Products API response:", response.data);
 
       // Handle API response structure: { data: Product[], meta: { total, skip, take, hasMore } }
@@ -43,6 +67,51 @@ const productService = {
       return [];
     } catch (error) {
       console.error("Error fetching products:", error);
+      throw error;
+    }
+  },
+
+  // Get products with full pagination response
+  getProductsPaginated: async (
+    params?: PaginationParams
+  ): Promise<PaginatedResponse<Product>> => {
+    try {
+      const queryParams = new URLSearchParams();
+
+      if (params?.skip !== undefined) {
+        queryParams.append("skip", params.skip.toString());
+      }
+      if (params?.take !== undefined) {
+        queryParams.append("take", params.take.toString());
+      }
+      if (params?.search) {
+        queryParams.append("search", params.search);
+      }
+      if (params?.categoryId) {
+        queryParams.append("categoryId", params.categoryId);
+      }
+
+      const url = `/products${
+        queryParams.toString() ? `?${queryParams.toString()}` : ""
+      }`;
+      const response = await api.get(url);
+      console.log("Products paginated API response:", response.data);
+
+      // Return the full paginated response
+      if (response.data && response.data.data && response.data.meta) {
+        return {
+          data: response.data.data,
+          meta: response.data.meta,
+        };
+      }
+
+      console.warn("Unexpected products response structure:", response.data);
+      return {
+        data: [],
+        meta: { total: 0, skip: 0, take: 10, hasMore: false },
+      };
+    } catch (error) {
+      console.error("Error fetching products paginated:", error);
       throw error;
     }
   },

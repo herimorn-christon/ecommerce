@@ -228,7 +228,7 @@ const SellerOrderDetailPage: React.FC = () => {
                       <div className="ml-4 flex-1">
                         <div className="flex justify-between">
                           <div>
-                            <h3 className="text-base font-medium text-gray-900">
+                            <h3 className="text-base font-medium text-gray-900 uppercase">
                               {item.product.name}
                             </h3>
                             <p className="mt-1 text-sm text-gray-500">
