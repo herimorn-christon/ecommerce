@@ -1,4 +1,4 @@
-import { CreditCard, MapPin, Phone, Truck } from "lucide-react";
+import { MapPin, Truck } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../../redux/hooks";
@@ -9,6 +9,7 @@ import { fetchTransporters } from "../../redux/slices/transporterSlice";
 import { Address } from "../../types";
 import Button from "../common/Button";
 import TextField from "../common/TextField";
+import PaymentMethodSelector from "../payment/PaymentMethodSelector";
 import TransporterSelect from "./TransporterSelect";
 
 interface CheckoutFormProps {
@@ -36,11 +37,9 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack }) => {
     Record<string, string>
   >({});
   const [deliveryOption, setDeliveryOption] = useState("standard");
-  const [paymentMethod, setPaymentMethod] = useState("mobile_money");
-  const [mobileMoneyNumber, setMobileMoneyNumber] = useState("");
   const [notes, setNotes] = useState("");
   const [isCreatingAddress, setIsCreatingAddress] = useState(false);
-  const [paymentProcessing, setPaymentProcessing] = useState(false);
+  const [showPaymentMethods, setShowPaymentMethods] = useState(false);
 
   // New address form
   const [newAddress, setNewAddress] = useState<
@@ -94,12 +93,7 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack }) => {
     }
   }, [addresses]);
 
-  // Set mobile number from user profile if available
-  useEffect(() => {
-    if (user?.phoneNumber) {
-      setMobileMoneyNumber(user.phoneNumber);
-    }
-  }, [user]);
+  // Set mobile number from user profile if available (remove this section)
 
   const handleNewAddressChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type, checked } = e.target;
@@ -197,99 +191,53 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack }) => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setPaymentProcessing(true);
 
-    try {
-      // Calculate base total without delivery fee
-      const baseTotal = items.reduce((sum, item) => {
-        return sum + Number(item.product.unitPrice) * Number(item.quantity);
-      }, 0);
-
-      // Get delivery fee
-      const deliveryFee = deliveryOption === "express" ? 10000 : 5000;
-      const totalAmount = baseTotal + deliveryFee;
-
-      // Store the base total (without delivery fee) for payment processing
-      // This is important because the backend expects the payment amount to match the item total only
-      const paymentAmount = baseTotal;
-
-      if (paymentMethod === "mobile_money") {
-        // Validate phone number and address
-        if (selectedAddressId === "new" || !selectedAddressId) {
-          throw new Error("Please select a delivery address");
-        }
-
-        const formattedPhone = mobileMoneyNumber.startsWith("+")
-          ? mobileMoneyNumber.substring(1)
-          : mobileMoneyNumber;
-
-        // Store the checkout data in localStorage for retrieval after payment
-        const checkoutData = {
-          items: items.map((item) => {
-            const transporterId = selectedTransporterIds[item.productId];
-            return {
-              productId: item.productId,
-              quantity: item.quantity,
-              ...(transporterId ? { transporterId } : {}),
-            };
-          }),
-          deliveryOption,
-          addressId: selectedAddressId,
-          notes: notes || "",
-          paymentMethod: "mobile_money",
-        };
-
-        localStorage.setItem("checkoutData", JSON.stringify(checkoutData));
-
-        // Store both the total order amount (with delivery) and payment amount (without delivery)
-        localStorage.setItem("orderTotalAmount", totalAmount.toString());
-
-        // Navigate to payment processing page with required data
-        // Important: Use baseTotal (without delivery fee) for the payment amount
-        // This fixes the error "Transaction amount does not match order total"
-        navigate(`/checkout/payment`, {
-          state: {
-            amount: baseTotal, // Send only the base total without delivery fee
-            phone: formattedPhone,
-            addressId: selectedAddressId,
-            deliveryOption,
-            transporterSelections: selectedTransporterIds,
-          },
-        });
-      } else {
-        // For cash on delivery, generate a new transaction ID
-        const transactionId = `COD-${Date.now()}-${Math.random()
-          .toString(36)
-          .substr(2, 9)}`;
-        const orderData = {
-          items: items.map((item) => {
-            const transporterId = selectedTransporterIds[item.productId];
-            return {
-              productId: item.productId,
-              quantity: item.quantity,
-              ...(transporterId ? { transporterId } : {}),
-            };
-          }),
-          deliveryOption,
-          paymentMethod: "cash_on_delivery",
-          paymentDetails: {
-            provider: "Cash",
-            phoneNumber: "",
-            transactionId: transactionId,
-          },
-          addressId: selectedAddressId,
-          notes: notes || "",
-          transactionId: transactionId,
-        };
-
-        const result = await dispatch(createOrder(orderData)).unwrap();
-        dispatch(clearCart());
-        navigate(`/orders/${result.id}`);
-      }
-    } catch (error: any) {
-      alert(error.message || "Something went wrong with your checkout");
-      setPaymentProcessing(false);
+    // Validate address selection
+    if (selectedAddressId === "new" || !selectedAddressId) {
+      alert("Please select a delivery address");
+      return;
     }
+
+    // Show payment methods
+    setShowPaymentMethods(true);
+  };
+
+  // Handle payment completion
+  const handlePaymentComplete = async (transactionId: string) => {
+    try {
+      // Create order with payment details
+      const orderData = {
+        items: items.map((item) => {
+          const transporterId = selectedTransporterIds[item.productId];
+          return {
+            productId: item.productId,
+            quantity: item.quantity,
+            ...(transporterId ? { transporterId } : {}),
+          };
+        }),
+        deliveryOption,
+        paymentMethod: "credit_card",
+        paymentDetails: {
+          provider: "Payment",
+          phoneNumber: "",
+          transactionId: transactionId,
+        },
+        addressId: selectedAddressId,
+        notes: notes || "",
+        transactionId: transactionId,
+      };
+
+      const result = await dispatch(createOrder(orderData)).unwrap();
+      dispatch(clearCart());
+      navigate(`/orders/${result.id}`);
+    } catch (error: any) {
+      alert(error.message || "Failed to create order");
+    }
+  };
+
+  // Handle payment failure
+  const handlePaymentFailed = () => {
+    setShowPaymentMethods(false);
   };
 
   // Add this helper function at the top of the component
@@ -647,70 +595,6 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack }) => {
               )}
             </div>
 
-            {/* Payment Method */}
-            <div className="bg-white rounded-lg shadow-md p-6">
-              <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
-                <CreditCard size={18} className="mr-2 text-blue-600" />
-                Payment Method
-              </h3>
-
-              <div className="space-y-4">
-                <label className="relative flex items-start">
-                  <input
-                    type="radio"
-                    name="paymentMethod"
-                    value="mobile_money"
-                    checked={paymentMethod === "mobile_money"}
-                    onChange={() => setPaymentMethod("mobile_money")}
-                    className="mt-0.5 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
-                  />
-                  <div className="ml-3">
-                    <span className="block font-medium text-gray-800">
-                      Mobile Money
-                    </span>
-                    <span className="block text-sm text-gray-500">
-                      Pay using M-Pesa, Tigo Pesa, or Airtel Money
-                    </span>
-                  </div>
-                </label>
-
-                {paymentMethod === "mobile_money" && (
-                  <div className="ml-7 mt-2">
-                    <TextField
-                      label="Mobile Money Number"
-                      value={mobileMoneyNumber}
-                      onChange={(e) => setMobileMoneyNumber(e.target.value)}
-                      placeholder="e.g., 255712345678"
-                      startIcon={<Phone size={18} />}
-                      required
-                    />
-                    <p className="text-xs text-gray-500 mt-1">
-                      Format: 255XXXXXXXXX (without + or leading 0)
-                    </p>
-                  </div>
-                )}
-
-                <label className="relative flex items-start">
-                  <input
-                    type="radio"
-                    name="paymentMethod"
-                    value="cash_on_delivery"
-                    checked={paymentMethod === "cash_on_delivery"}
-                    onChange={() => setPaymentMethod("cash_on_delivery")}
-                    className="mt-0.5 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
-                  />
-                  <div className="ml-3">
-                    <span className="block font-medium text-gray-800">
-                      Cash on Delivery
-                    </span>
-                    <span className="block text-sm text-gray-500">
-                      Pay when you receive your order
-                    </span>
-                  </div>
-                </label>
-              </div>
-            </div>
-
             {/* Order Notes */}
             <div className="bg-white rounded-lg shadow-md p-6">
               <h3 className="text-lg font-semibold text-gray-800 mb-4">
@@ -795,25 +679,46 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack }) => {
               </div>
 
               <div className="mt-6 space-y-3">
-                <Button
-                  type="submit"
-                  variant="primary"
-                  fullWidth
-                  isLoading={isLoading || paymentProcessing}
-                  disabled={isLoading || paymentProcessing}
-                >
-                  {paymentProcessing ? "Processing Payment..." : "Place Order"}
-                </Button>
+                {!showPaymentMethods ? (
+                  <>
+                    <Button
+                      type="submit"
+                      variant="primary"
+                      fullWidth
+                      isLoading={isLoading}
+                      disabled={isLoading}
+                    >
+                      Place Order
+                    </Button>
 
-                <Button
-                  type="button"
-                  onClick={onBack}
-                  variant="outline"
-                  fullWidth
-                  disabled={paymentProcessing}
-                >
-                  Back to Cart
-                </Button>
+                    <Button
+                      type="button"
+                      onClick={onBack}
+                      variant="outline"
+                      fullWidth
+                    >
+                      Back to Cart
+                    </Button>
+                  </>
+                ) : (
+                  <div className="space-y-4">
+                    <PaymentMethodSelector
+                      amount={getOrderTotal()}
+                      addressId={selectedAddressId as string}
+                      onPaymentComplete={handlePaymentComplete}
+                      onPaymentFailed={handlePaymentFailed}
+                    />
+
+                    <Button
+                      type="button"
+                      onClick={() => setShowPaymentMethods(false)}
+                      variant="outline"
+                      fullWidth
+                    >
+                      Back to Order Details
+                    </Button>
+                  </div>
+                )}
               </div>
             </div>
           </div>

@@ -388,6 +388,7 @@ const ProfilePage: React.FC = () => {
                                       : "bg-yellow-100 text-yellow-800"
                                   }`}
                                 >
+                                  {/* todo(Muneersahel): in pending state show processing */}
                                   {order.status.charAt(0).toUpperCase() +
                                     order.status.slice(1)}
                                 </span>

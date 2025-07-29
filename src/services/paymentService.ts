@@ -18,6 +18,62 @@ interface PaymentInitiateResponse {
   };
 }
 
+interface PesapalCreateOrderRequest {
+  amount: number;
+  currency: string;
+  description: string;
+  callbackUrl: string;
+  billingAddress: {
+    phone_number: string;
+    email_address: string;
+    country_code: string;
+    first_name: string;
+    middle_name?: string;
+    last_name: string;
+    line_1: string;
+    line_2?: string;
+    city: string;
+    state: string;
+    postal_code: string;
+    zip_code: string;
+  };
+  cancellationUrl: string;
+  branch: string;
+}
+
+interface PesapalCreateOrderResponse {
+  referenceId: string;
+  transactionId: string;
+  order_tracking_id: string;
+  redirect_url: string;
+  error: string | null;
+  status: string;
+}
+
+interface PesapalTransactionStatusResponse {
+  payment_method: string;
+  amount: number;
+  created_date: string;
+  confirmation_code: string;
+  order_tracking_id: string;
+  payment_status_description: string;
+  description: string | null;
+  message: string;
+  payment_account: string;
+  call_back_url: string;
+  status_code: number;
+  merchant_reference: string;
+  account_number: string | null;
+  payment_status_code: string;
+  currency: string;
+  error: {
+    error_type: string | null;
+    code: string | null;
+    message: string | null;
+  };
+  status: string;
+}
+
 interface PaymentStatusResponse {
   reference: string;
   message: string;
@@ -96,6 +152,47 @@ const paymentService = {
     }
   },
 
+  // Pesapal create order
+  createPesapalOrder: async (
+    orderData: PesapalCreateOrderRequest
+  ): Promise<PesapalCreateOrderResponse> => {
+    try {
+      const response = await paymentApi.post(
+        "/pesapal/create-order",
+        orderData
+      );
+
+      if (!response.data) {
+        throw new Error("No response data received from Pesapal service");
+      }
+
+      return response.data;
+    } catch (error: any) {
+      console.error("Pesapal order creation failed:", error);
+      throw error;
+    }
+  },
+
+  // Check Pesapal transaction status
+  checkPesapalTransactionStatus: async (
+    trackingId: string
+  ): Promise<PesapalTransactionStatusResponse> => {
+    try {
+      const response = await paymentApi.get(
+        `/pesapal/transaction-status/${trackingId}`
+      );
+
+      if (!response.data) {
+        throw new Error("No response data received from Pesapal service");
+      }
+
+      return response.data;
+    } catch (error: any) {
+      console.error("Pesapal status check failed:", error);
+      throw error;
+    }
+  },
+
   checkPaymentStatus: async (
     referenceId: string
   ): Promise<PaymentStatusResponse> => {
@@ -117,10 +214,7 @@ const paymentService = {
     callbackData: PaymentCallback
   ): Promise<any> => {
     try {
-      const response = await paymentApi.post(
-        "/v1/azampay/callback",
-        callbackData
-      );
+      const response = await paymentApi.post("/azampay/callback", callbackData);
       return response.data;
     } catch (error: any) {
       throw error;
