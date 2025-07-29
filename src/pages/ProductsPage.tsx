@@ -14,7 +14,7 @@ import {
 const ProductsPage: React.FC = () => {
   const dispatch = useAppDispatch();
   const {
-    filteredProducts,
+    products, // Use products instead of filteredProducts for paginated results
     categories,
     isLoading,
     error,
@@ -37,12 +37,24 @@ const ProductsPage: React.FC = () => {
     categoryId?: string
   ) => {
     const skip = (page - 1) * itemsPerPage;
+
+    // Get the category ID to use
+    const targetCategoryId = categoryId || selectedCategory?.id;
+
+    console.log("Loading products with params:", {
+      skip,
+      take: itemsPerPage,
+      search: search || debouncedSearchTerm || undefined,
+      categoryId: targetCategoryId,
+      selectedCategory,
+    });
+
     dispatch(
       fetchProductsPaginated({
         skip,
         take: itemsPerPage,
         search: search || debouncedSearchTerm || undefined,
-        categoryId: categoryId || selectedCategory?.id || undefined,
+        categoryId: targetCategoryId || undefined,
       })
     );
   };
@@ -124,7 +136,7 @@ const ProductsPage: React.FC = () => {
           {/* Main Content */}
           <div className="flex-1">
             <ProductGrid
-              products={filteredProducts}
+              products={products}
               isLoading={isLoading}
               error={error}
             />

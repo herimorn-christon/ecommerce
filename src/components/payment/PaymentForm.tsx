@@ -23,8 +23,6 @@ const PaymentForm: React.FC<PaymentFormProps> = ({
   amount,
   onPaymentComplete,
   onPaymentFailed,
-  addressId = "",
-  deliveryOption = "standard",
 }) => {
   const dispatch = useAppDispatch();
   const { user } = useAppSelector((state) => state.auth);

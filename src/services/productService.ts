@@ -35,32 +35,46 @@ const productService = {
 
   getProducts: async (params?: PaginationParams): Promise<Product[]> => {
     try {
-      const queryParams = new URLSearchParams();
+      let url: string;
 
-      if (params?.skip !== undefined) {
-        queryParams.append("skip", params.skip.toString());
-      }
-      if (params?.take !== undefined) {
-        queryParams.append("take", params.take.toString());
-      }
-      if (params?.search) {
-        queryParams.append("search", params.search);
-      }
       if (params?.categoryId) {
-        queryParams.append("categoryId", params.categoryId);
+        // Category endpoint returns all products as direct array
+        url = `/products/category/${params.categoryId}`;
+      } else {
+        // Use the general products endpoint
+        const queryParams = new URLSearchParams();
+
+        if (params?.skip !== undefined) {
+          queryParams.append("skip", params.skip.toString());
+        }
+        if (params?.take !== undefined) {
+          queryParams.append("take", params.take.toString());
+        }
+        if (params?.search) {
+          queryParams.append("search", params.search);
+        }
+
+        url = `/products${
+          queryParams.toString() ? `?${queryParams.toString()}` : ""
+        }`;
       }
 
-      const url = `/products${
-        queryParams.toString() ? `?${queryParams.toString()}` : ""
-      }`;
+      console.log("Making API call to:", url);
       const response = await api.get(url);
       console.log("Products API response:", response.data);
 
-      // Handle API response structure: { data: Product[], meta: { total, skip, take, hasMore } }
-      if (response.data && Array.isArray(response.data.data)) {
-        return response.data.data;
-      } else if (Array.isArray(response.data)) {
-        return response.data;
+      if (params?.categoryId) {
+        // Category endpoint returns direct array
+        if (Array.isArray(response.data)) {
+          return response.data;
+        }
+      } else {
+        // General endpoint returns paginated structure
+        if (response.data && Array.isArray(response.data.data)) {
+          return response.data.data;
+        } else if (Array.isArray(response.data)) {
+          return response.data;
+        }
       }
 
       console.warn("Unexpected products response structure:", response.data);
@@ -76,40 +90,87 @@ const productService = {
     params?: PaginationParams
   ): Promise<PaginatedResponse<Product>> => {
     try {
-      const queryParams = new URLSearchParams();
+      let url: string;
 
-      if (params?.skip !== undefined) {
-        queryParams.append("skip", params.skip.toString());
-      }
-      if (params?.take !== undefined) {
-        queryParams.append("take", params.take.toString());
-      }
-      if (params?.search) {
-        queryParams.append("search", params.search);
-      }
       if (params?.categoryId) {
-        queryParams.append("categoryId", params.categoryId);
-      }
+        // Category endpoint returns all products, so we'll need to handle pagination client-side
+        url = `/products/category/${params.categoryId}`;
 
-      const url = `/products${
-        queryParams.toString() ? `?${queryParams.toString()}` : ""
-      }`;
-      const response = await api.get(url);
-      console.log("Products paginated API response:", response.data);
+        console.log("Making paginated API call to:", url);
+        const response = await api.get(url);
+        console.log("Products paginated API response:", response.data);
 
-      // Return the full paginated response
-      if (response.data && response.data.data && response.data.meta) {
+        if (Array.isArray(response.data)) {
+          let filteredProducts = response.data;
+
+          // Apply search filter if provided
+          if (params?.search) {
+            const searchTerm = params.search.toLowerCase();
+            filteredProducts = filteredProducts.filter(
+              (product: Product) =>
+                product.name.toLowerCase().includes(searchTerm) ||
+                product.description.toLowerCase().includes(searchTerm)
+            );
+          }
+
+          // Apply pagination
+          const skip = params?.skip || 0;
+          const take = params?.take || 10;
+          const total = filteredProducts.length;
+          const paginatedProducts = filteredProducts.slice(skip, skip + take);
+
+          return {
+            data: paginatedProducts,
+            meta: {
+              total,
+              skip,
+              take,
+              hasMore: skip + take < total,
+            },
+          };
+        }
+
+        console.warn("Unexpected products response structure:", response.data);
         return {
-          data: response.data.data,
-          meta: response.data.meta,
+          data: [],
+          meta: { total: 0, skip: 0, take: 10, hasMore: false },
+        };
+      } else {
+        // Use the general products endpoint with server-side pagination
+        const queryParams = new URLSearchParams();
+
+        if (params?.skip !== undefined) {
+          queryParams.append("skip", params.skip.toString());
+        }
+        if (params?.take !== undefined) {
+          queryParams.append("take", params.take.toString());
+        }
+        if (params?.search) {
+          queryParams.append("search", params.search);
+        }
+
+        url = `/products${
+          queryParams.toString() ? `?${queryParams.toString()}` : ""
+        }`;
+
+        console.log("Making paginated API call to:", url);
+        const response = await api.get(url);
+        console.log("Products paginated API response:", response.data);
+
+        // Return the full paginated response
+        if (response.data && response.data.data && response.data.meta) {
+          return {
+            data: response.data.data,
+            meta: response.data.meta,
+          };
+        }
+
+        console.warn("Unexpected products response structure:", response.data);
+        return {
+          data: [],
+          meta: { total: 0, skip: 0, take: 10, hasMore: false },
         };
       }
-
-      console.warn("Unexpected products response structure:", response.data);
-      return {
-        data: [],
-        meta: { total: 0, skip: 0, take: 10, hasMore: false },
-      };
     } catch (error) {
       console.error("Error fetching products paginated:", error);
       throw error;
@@ -126,10 +187,8 @@ const productService = {
       const response = await api.get(`/products/category/${categoryId}`);
       console.log("Products by category API response:", response.data);
 
-      // Handle API response structure: { data: Product[], meta: { total, skip, take, hasMore } }
-      if (response.data && Array.isArray(response.data.data)) {
-        return response.data.data;
-      } else if (Array.isArray(response.data)) {
+      // This endpoint returns a direct array of products, not the paginated structure
+      if (Array.isArray(response.data)) {
         return response.data;
       }
 
