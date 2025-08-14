@@ -10,7 +10,7 @@ interface TransporterSelectProps {
   className?: string;
   destinationCity?: string;
   destinationRegion?: string;
-  deliveryOption?: 'standard' | 'express';
+  deliveryOption?: "standard" | "express";
 }
 
 const TransporterSelect: React.FC<TransporterSelectProps> = ({
@@ -21,24 +21,29 @@ const TransporterSelect: React.FC<TransporterSelectProps> = ({
   className = "",
   destinationCity,
   destinationRegion,
-  deliveryOption = 'standard',
+  deliveryOption = "standard",
 }) => {
   // Helper function to get applicable transportation fee for a transporter
   const getApplicableFee = (transporter: Transporter) => {
     if (!transporter.transportationFees || !destinationCity) return null;
 
     // Try to find a fee that matches both destination and transportation type
-    let applicableFee = transporter.transportationFees.find(fee => 
-      (fee.destination.toLowerCase() === destinationCity.toLowerCase() ||
-       (destinationRegion && fee.destination.toLowerCase() === destinationRegion.toLowerCase())) &&
-      fee.transportationType === deliveryOption
+    let applicableFee = transporter.transportationFees.find(
+      (fee) =>
+        (fee.destination.toLowerCase() === destinationCity.toLowerCase() ||
+          (destinationRegion &&
+            fee.destination.toLowerCase() ===
+              destinationRegion.toLowerCase())) &&
+        fee.transportationType === deliveryOption
     );
 
     // If no exact match found, try to find by destination only
     if (!applicableFee) {
-      applicableFee = transporter.transportationFees.find(fee => 
-        fee.destination.toLowerCase() === destinationCity.toLowerCase() ||
-        (destinationRegion && fee.destination.toLowerCase() === destinationRegion.toLowerCase())
+      applicableFee = transporter.transportationFees.find(
+        (fee) =>
+          fee.destination.toLowerCase() === destinationCity.toLowerCase() ||
+          (destinationRegion &&
+            fee.destination.toLowerCase() === destinationRegion.toLowerCase())
       );
     }
 
@@ -76,7 +81,7 @@ const TransporterSelect: React.FC<TransporterSelectProps> = ({
       <div className="space-y-3">
         {transporters.map((transporter) => {
           const applicableFee = getApplicableFee(transporter);
-          
+
           return (
             <div
               key={transporter.id}
@@ -102,11 +107,14 @@ const TransporterSelect: React.FC<TransporterSelectProps> = ({
                   {applicableFee && (
                     <div className="mt-1">
                       <p className="text-xs text-green-600 font-medium">
-                        {applicableFee.startingPoint} → {applicableFee.destination}
+                        {applicableFee.startingPoint} →{" "}
+                        {applicableFee.destination}
                       </p>
                       <p className="text-xs text-gray-600">
-                        TZS {applicableFee.price.toLocaleString()} per item ({applicableFee.transportationType})
-                        {applicableFee.weight > 0 && ` (${applicableFee.weight}kg limit)`}
+                        TZS {applicableFee.price.toLocaleString()} per item (
+                        {applicableFee.transportationType})
+                        {applicableFee.weight > 0 &&
+                          ` (${applicableFee.weight}kg limit)`}
                       </p>
                     </div>
                   )}

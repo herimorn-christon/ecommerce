@@ -8,7 +8,7 @@ import {
   fetchCurrentTransporter,
   updateTransporterProfile,
 } from "../../redux/slices/transporterSlice";
-import { TransportationFee, TransportationType } from "../../types";
+import { TransportationFee } from "../../types";
 
 const TransporterProfileEditPage: React.FC = () => {
   const navigate = useNavigate();
@@ -71,7 +71,13 @@ const TransporterProfileEditPage: React.FC = () => {
       } else {
         // Initialize with empty fee if none exist
         setTransportationFees([
-          { startingPoint: "", destination: "", price: 0, weight: 0, transportationType: 'standard' },
+          {
+            startingPoint: "",
+            destination: "",
+            price: 0,
+            weight: 0,
+            transportationType: "standard",
+          },
         ]);
       }
     }
@@ -107,7 +113,13 @@ const TransporterProfileEditPage: React.FC = () => {
   const addTransportationFee = () => {
     setTransportationFees((prev) => [
       ...prev,
-      { startingPoint: "", destination: "", price: 0, weight: 0, transportationType: 'standard' },
+      {
+        startingPoint: "",
+        destination: "",
+        price: 0,
+        weight: 0,
+        transportationType: "standard",
+      },
     ]);
   };
 
@@ -402,7 +414,7 @@ const TransporterProfileEditPage: React.FC = () => {
                             handleFeeChange(
                               index,
                               "transportationType",
-                              e.target.value as 'standard' | 'express'
+                              e.target.value as "standard" | "express"
                             )
                           }
                           className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500"

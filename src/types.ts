@@ -328,7 +328,7 @@ export interface SellerEarningsSummary {
 }
 
 // Transportation Fee types
-export type TransportationType = 'standard' | 'express';
+export type TransportationType = "standard" | "express";
 
 export interface TransportationFee {
   id?: string;

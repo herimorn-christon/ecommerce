@@ -164,9 +164,9 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack }) => {
     }
   };
 
-    // Helper function to generate order summary for payment confirmation
+  // Helper function to generate order summary for payment confirmation
   const getOrderSummaryForPayment = () => {
-    const summaryItems = items.map(item => ({
+    const summaryItems = items.map((item) => ({
       id: item.productId,
       name: item.product.name,
       quantity: item.quantity,
@@ -179,7 +179,7 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack }) => {
         sum + Number(item.product.unitPrice) * Number(item.quantity),
       0
     );
-    
+
     const baseDeliveryFee = deliveryOption === "express" ? 10000 : 5000;
     const transportationFees = calculateTransportationFees();
     const totalShippingFee = baseDeliveryFee + transportationFees;
@@ -196,33 +196,39 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack }) => {
   const calculateTransportationFees = () => {
     if (!items?.length || !addresses.length) return 0;
 
-    const selectedAddress = addresses.find(addr => addr.id === selectedAddressId);
+    const selectedAddress = addresses.find(
+      (addr) => addr.id === selectedAddressId
+    );
     if (!selectedAddress) return 0;
 
     let totalTransportationFees = 0;
 
-    items.forEach(item => {
+    items.forEach((item) => {
       const transporterId = selectedTransporterIds[item.productId];
       if (!transporterId) return;
 
-      const transporter = transporters.find(t => t.id === transporterId);
+      const transporter = transporters.find((t) => t.id === transporterId);
       if (!transporter?.transportationFees) return;
 
       // Find the appropriate transportation fee based on destination and delivery type
       const destinationCity = selectedAddress.city;
-      
+
       // Try to find a fee that matches both destination and transportation type
-      let applicableFee = transporter.transportationFees.find(fee => 
-        (fee.destination.toLowerCase() === destinationCity.toLowerCase() ||
-         fee.destination.toLowerCase() === selectedAddress.region.toLowerCase()) &&
-        fee.transportationType === deliveryOption
+      let applicableFee = transporter.transportationFees.find(
+        (fee) =>
+          (fee.destination.toLowerCase() === destinationCity.toLowerCase() ||
+            fee.destination.toLowerCase() ===
+              selectedAddress.region.toLowerCase()) &&
+          fee.transportationType === deliveryOption
       );
 
       // If no exact match found, try to find by destination only
       if (!applicableFee) {
-        applicableFee = transporter.transportationFees.find(fee => 
-          fee.destination.toLowerCase() === destinationCity.toLowerCase() ||
-          fee.destination.toLowerCase() === selectedAddress.region.toLowerCase()
+        applicableFee = transporter.transportationFees.find(
+          (fee) =>
+            fee.destination.toLowerCase() === destinationCity.toLowerCase() ||
+            fee.destination.toLowerCase() ===
+              selectedAddress.region.toLowerCase()
         );
       }
 
@@ -245,7 +251,9 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack }) => {
   const getTransportationFeesBreakdown = () => {
     if (!items?.length || !addresses.length) return [];
 
-    const selectedAddress = addresses.find(addr => addr.id === selectedAddressId);
+    const selectedAddress = addresses.find(
+      (addr) => addr.id === selectedAddressId
+    );
     if (!selectedAddress) return [];
 
     const breakdown: Array<{
@@ -258,27 +266,31 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack }) => {
       totalFee: number;
     }> = [];
 
-    items.forEach(item => {
+    items.forEach((item) => {
       const transporterId = selectedTransporterIds[item.productId];
       if (!transporterId) return;
 
-      const transporter = transporters.find(t => t.id === transporterId);
+      const transporter = transporters.find((t) => t.id === transporterId);
       if (!transporter?.transportationFees) return;
 
       const destinationCity = selectedAddress.city;
-      
+
       // Try to find a fee that matches both destination and transportation type
-      let applicableFee = transporter.transportationFees.find(fee => 
-        (fee.destination.toLowerCase() === destinationCity.toLowerCase() ||
-         fee.destination.toLowerCase() === selectedAddress.region.toLowerCase()) &&
-        fee.transportationType === deliveryOption
+      let applicableFee = transporter.transportationFees.find(
+        (fee) =>
+          (fee.destination.toLowerCase() === destinationCity.toLowerCase() ||
+            fee.destination.toLowerCase() ===
+              selectedAddress.region.toLowerCase()) &&
+          fee.transportationType === deliveryOption
       );
 
       // If no exact match found, try to find by destination only
       if (!applicableFee) {
-        applicableFee = transporter.transportationFees.find(fee => 
-          fee.destination.toLowerCase() === destinationCity.toLowerCase() ||
-          fee.destination.toLowerCase() === selectedAddress.region.toLowerCase()
+        applicableFee = transporter.transportationFees.find(
+          (fee) =>
+            fee.destination.toLowerCase() === destinationCity.toLowerCase() ||
+            fee.destination.toLowerCase() ===
+              selectedAddress.region.toLowerCase()
         );
       }
 
@@ -292,7 +304,9 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack }) => {
           itemName: item.product.name,
           transporterName: transporter.businessName,
           route: `${applicableFee.startingPoint} → ${applicableFee.destination}`,
-          transportationType: applicableFee.transportationType.charAt(0).toUpperCase() + applicableFee.transportationType.slice(1),
+          transportationType:
+            applicableFee.transportationType.charAt(0).toUpperCase() +
+            applicableFee.transportationType.slice(1),
           quantity: item.quantity,
           feePerUnit: applicableFee.price,
           totalFee: applicableFee.price * item.quantity,
@@ -324,7 +338,9 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack }) => {
 
     const baseDeliveryFee = deliveryOption === "express" ? 10000 : 5000;
     const transportationFees = calculateTransportationFees();
-    const finalTotal = Math.round(itemsTotal + baseDeliveryFee + transportationFees);
+    const finalTotal = Math.round(
+      itemsTotal + baseDeliveryFee + transportationFees
+    );
 
     return finalTotal;
   };
@@ -728,9 +744,19 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack }) => {
                         }
                         isLoading={transportersLoading}
                         className="mt-2"
-                        destinationCity={addresses.find(addr => addr.id === selectedAddressId)?.city}
-                        destinationRegion={addresses.find(addr => addr.id === selectedAddressId)?.region}
-                        deliveryOption={deliveryOption as 'standard' | 'express'}
+                        destinationCity={
+                          addresses.find(
+                            (addr) => addr.id === selectedAddressId
+                          )?.city
+                        }
+                        destinationRegion={
+                          addresses.find(
+                            (addr) => addr.id === selectedAddressId
+                          )?.region
+                        }
+                        deliveryOption={
+                          deliveryOption as "standard" | "express"
+                        }
                       />
                     </div>
                   ))}
@@ -817,20 +843,30 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack }) => {
                 {getTransportationFeesBreakdown().length > 0 && (
                   <div className="py-2 border-t border-gray-100">
                     <div className="flex justify-between mb-2">
-                      <span className="text-gray-600 font-medium">Transportation Fees</span>
+                      <span className="text-gray-600 font-medium">
+                        Transportation Fees
+                      </span>
                       <span className="font-medium">
                         TZS {calculateTransportationFees().toLocaleString()}
                       </span>
                     </div>
                     <div className="space-y-1 ml-4">
                       {getTransportationFeesBreakdown().map((fee, index) => (
-                        <div key={index} className="flex justify-between text-sm text-gray-500">
+                        <div
+                          key={index}
+                          className="flex justify-between text-sm text-gray-500"
+                        >
                           <div>
                             <span className="block">{fee.itemName}</span>
-                            <span className="text-xs">{fee.route} via {fee.transporterName} ({fee.transportationType})</span>
+                            <span className="text-xs">
+                              {fee.route} via {fee.transporterName} (
+                              {fee.transportationType})
+                            </span>
                           </div>
                           <span>
-                            {fee.quantity} × TZS {fee.feePerUnit.toLocaleString()} = TZS {fee.totalFee.toLocaleString()}
+                            {fee.quantity} × TZS{" "}
+                            {fee.feePerUnit.toLocaleString()} = TZS{" "}
+                            {fee.totalFee.toLocaleString()}
                           </span>
                         </div>
                       ))}
