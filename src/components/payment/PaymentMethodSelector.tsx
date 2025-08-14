@@ -7,8 +7,10 @@ import {
 } from "lucide-react";
 import React, { useState } from "react";
 import toast from "react-hot-toast";
+import { useNavigate } from "react-router-dom";
 import { useAppSelector } from "../../redux/hooks";
 import paymentService from "../../services/paymentService";
+import CheckoutConfirmationModal from "../checkout/CheckoutConfirmationModal";
 import Button from "../common/Button";
 import TextField from "../common/TextField";
 
@@ -17,6 +19,18 @@ interface PaymentMethodSelectorProps {
   addressId: string;
   onPaymentComplete: (transactionId: string) => void;
   onPaymentFailed?: () => void;
+  orderSummary?: {
+    items: Array<{
+      id: string;
+      name: string;
+      quantity: number;
+      price: number;
+      image?: string;
+    }>;
+    subtotal: number;
+    shippingFee: number;
+    total: number;
+  };
 }
 
 interface SelectedAddress {
@@ -33,16 +47,18 @@ interface SelectedAddress {
 }
 
 // todo(Muneersahel): before checkout show confirmation dialog with selected address and payment method before proceeding
-// todo(Muneersahel): on successfull payment, show page to the user that payment was successful
 
 const PaymentMethodSelector: React.FC<PaymentMethodSelectorProps> = ({
   amount,
   addressId,
   onPaymentComplete,
   onPaymentFailed,
+  orderSummary,
 }) => {
+  const navigate = useNavigate();
   const { user } = useAppSelector((state) => state.auth);
   const { addresses } = useAppSelector((state) => state.address);
+  const { items } = useAppSelector((state) => state.cart);
 
   const [selectedMethod, setSelectedMethod] = useState<
     "mobile_money" | "card" | null
@@ -50,6 +66,7 @@ const PaymentMethodSelector: React.FC<PaymentMethodSelectorProps> = ({
   const [isProcessing, setIsProcessing] = useState(false);
   const [phoneNumber, setPhoneNumber] = useState(user?.phoneNumber || "");
   const [phoneError, setPhoneError] = useState("");
+  const [showConfirmation, setShowConfirmation] = useState(false);
 
   // Pesapal specific states
   const [pesapalOrderId, setPesapalOrderId] = useState<string | null>(null);
@@ -63,6 +80,57 @@ const PaymentMethodSelector: React.FC<PaymentMethodSelectorProps> = ({
   const selectedAddress = addresses.find((addr) => addr.id === addressId) as
     | SelectedAddress
     | undefined;
+
+  // Generate order summary from cart items if not provided
+  const getOrderSummary = () => {
+    if (orderSummary) return orderSummary;
+
+    if (!items?.length) {
+      return {
+        items: [],
+        subtotal: 0,
+        shippingFee: 5000, // Default shipping fee
+        total: amount,
+      };
+    }
+
+    const summaryItems = items.map((item) => ({
+      id: item.productId,
+      name: item.product.name,
+      quantity: item.quantity,
+      price: Number(item.product.unitPrice),
+      image: item.product.images?.[0]?.url,
+    }));
+
+    const subtotal = summaryItems.reduce(
+      (sum, item) => sum + item.price * item.quantity,
+      0
+    );
+    const shippingFee = amount - subtotal;
+
+    return {
+      items: summaryItems,
+      subtotal,
+      shippingFee: Math.max(0, shippingFee),
+      total: amount,
+    };
+  };
+
+  // Handle payment method confirmation
+  const handlePaymentMethodSelect = (method: "mobile_money" | "card") => {
+    setSelectedMethod(method);
+    setShowConfirmation(true);
+  };
+
+  // Handle confirmation and proceed with payment
+  const handleConfirmPayment = () => {
+    setShowConfirmation(false);
+    if (selectedMethod === "mobile_money") {
+      handleMobileMoneyPayment();
+    } else if (selectedMethod === "card") {
+      handleCardPayment();
+    }
+  };
 
   // Validate phone number
   const validatePhoneNumber = (phone: string): boolean => {
@@ -105,9 +173,10 @@ const PaymentMethodSelector: React.FC<PaymentMethodSelectorProps> = ({
         toast.success(result.message || "Payment initiated successfully");
         // Store reference for potential status checking
         localStorage.setItem("azampayReferenceId", result.referenceId);
-        // In a real implementation, you'd handle the payment flow here
-        // For now, we'll simulate success after a delay
+        // Navigate to success page with payment details
         setTimeout(() => {
+          const successUrl = `/payment/success?transactionId=${result.transactionId}&amount=${amount}&paymentMethod=mobile_money`;
+          navigate(successUrl);
           onPaymentComplete(result.transactionId);
         }, 2000);
       } else {
@@ -213,6 +282,9 @@ const PaymentMethodSelector: React.FC<PaymentMethodSelectorProps> = ({
       if (result.status === "200") {
         if (result.payment_status_description === "Completed") {
           toast.success("Payment completed successfully!");
+          // Navigate to success page with payment details
+          const successUrl = `/payment/success?transactionId=${result.merchant_reference}&amount=${amount}&paymentMethod=card`;
+          navigate(successUrl);
           onPaymentComplete(result.merchant_reference);
         } else if (result.payment_status_description === "Failed") {
           toast.error("Payment failed. Please try again.");
@@ -249,7 +321,7 @@ const PaymentMethodSelector: React.FC<PaymentMethodSelectorProps> = ({
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {/* Mobile Money Option */}
           <div
-            onClick={() => setSelectedMethod("mobile_money")}
+            onClick={() => handlePaymentMethodSelect("mobile_money")}
             className="border-2 border-gray-200 rounded-lg p-6 cursor-pointer hover:border-primary-500 hover:bg-primary-50 transition-all duration-200"
           >
             <div className="flex items-center mb-4">
@@ -271,7 +343,7 @@ const PaymentMethodSelector: React.FC<PaymentMethodSelectorProps> = ({
 
           {/* Card Payment Option */}
           <div
-            onClick={() => setSelectedMethod("card")}
+            onClick={() => handlePaymentMethodSelect("card")}
             className="border-2 border-gray-200 rounded-lg p-6 cursor-pointer hover:border-primary-500 hover:bg-primary-50 transition-all duration-200"
           >
             <div className="flex items-center mb-4">
@@ -447,7 +519,25 @@ const PaymentMethodSelector: React.FC<PaymentMethodSelectorProps> = ({
     );
   }
 
-  return null;
+  return (
+    <>
+      {showConfirmation && selectedAddress && (
+        <CheckoutConfirmationModal
+          isOpen={showConfirmation}
+          onClose={() => setShowConfirmation(false)}
+          onConfirm={handleConfirmPayment}
+          orderSummary={getOrderSummary()}
+          selectedAddress={selectedAddress}
+          selectedPaymentMethod={selectedMethod!}
+          phoneNumber={
+            selectedMethod === "mobile_money" ? phoneNumber : undefined
+          }
+          isProcessing={isProcessing}
+        />
+      )}
+      {null}
+    </>
+  );
 };
 
 export default PaymentMethodSelector;

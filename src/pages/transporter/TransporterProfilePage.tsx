@@ -4,6 +4,7 @@ import {
   Mail,
   MapPin,
   Phone,
+  Route,
   ShieldCheck,
   Truck,
   User,
@@ -211,6 +212,74 @@ const TransporterProfilePage: React.FC = () => {
                   </p>
                 )}
               </div>
+            </div>
+
+            {/* Transportation Fees Section */}
+            <div className="mt-6 border-t border-gray-200 pt-6">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-medium text-gray-800 flex items-center">
+                  <Route className="w-5 h-5 mr-2" />
+                  Transportation Fees
+                </h3>
+              </div>
+
+              {selectedTransporter.transportationFees &&
+              selectedTransporter.transportationFees.length > 0 ? (
+                <div className="space-y-3">
+                  {selectedTransporter.transportationFees.map((fee, index) => (
+                    <div
+                      key={index}
+                      className="bg-gray-50 rounded-lg p-4 border border-gray-200"
+                    >
+                      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 items-center">
+                        <div>
+                          <p className="text-sm font-medium text-gray-600">
+                            From
+                          </p>
+                          <p className="text-gray-800">{fee.startingPoint}</p>
+                        </div>
+                        <div>
+                          <p className="text-sm font-medium text-gray-600">
+                            To
+                          </p>
+                          <p className="text-gray-800">{fee.destination}</p>
+                        </div>
+                        <div>
+                          <p className="text-sm font-medium text-gray-600">
+                            Weight
+                          </p>
+                          <p className="text-gray-800">{fee.weight} kg</p>
+                        </div>
+                        <div>
+                          <p className="text-sm font-medium text-gray-600">
+                            Price
+                          </p>
+                          <p className="text-lg font-semibold text-primary-600">
+                            TZS {fee.price.toLocaleString()}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="bg-gray-50 rounded-lg p-6 text-center">
+                  <Route className="w-12 h-12 text-gray-400 mx-auto mb-3" />
+                  <p className="text-gray-500 mb-2">
+                    No transportation routes configured
+                  </p>
+                  <p className="text-sm text-gray-400">
+                    Add your transportation routes and pricing to help customers
+                    choose your services
+                  </p>
+                  <button
+                    onClick={() => navigate("/transporter/profile/edit")}
+                    className="mt-3 px-4 py-2 text-sm bg-primary-600 text-white rounded-md hover:bg-primary-700"
+                  >
+                    Add Routes
+                  </button>
+                </div>
+              )}
             </div>
 
             <div className="mt-6 border-t border-gray-200 pt-6">

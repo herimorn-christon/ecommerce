@@ -164,6 +164,32 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack }) => {
     }
   };
 
+  // Helper function to generate order summary for payment confirmation
+  const getOrderSummaryForPayment = () => {
+    const summaryItems = items.map((item) => ({
+      id: item.productId,
+      name: item.product.name,
+      quantity: item.quantity,
+      price: Number(item.product.unitPrice),
+      image: item.product.images?.[0]?.url,
+    }));
+
+    const subtotal = items.reduce(
+      (sum, item) =>
+        sum + Number(item.product.unitPrice) * Number(item.quantity),
+      0
+    );
+
+    const shippingFee = deliveryOption === "express" ? 10000 : 5000;
+
+    return {
+      items: summaryItems,
+      subtotal,
+      shippingFee,
+      total: subtotal + shippingFee,
+    };
+  };
+
   // Calculate the total with delivery
   const getOrderTotal = () => {
     if (!items?.length) {
@@ -707,6 +733,7 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack }) => {
                       addressId={selectedAddressId as string}
                       onPaymentComplete={handlePaymentComplete}
                       onPaymentFailed={handlePaymentFailed}
+                      orderSummary={getOrderSummaryForPayment()}
                     />
 
                     <Button

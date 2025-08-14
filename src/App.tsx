@@ -20,6 +20,7 @@ import FAQPage from "./pages/FAQPage";
 import HomePage from "./pages/HomePage";
 import OrderCheckoutPage from "./pages/OrderCheckoutPage";
 import PaymentPage from "./pages/PaymentPage";
+import PaymentSuccessPage from "./pages/PaymentSuccessPage";
 import PrivacyPolicyPage from "./pages/PrivacyPolicyPage";
 import ProductDetailPage from "./pages/ProductDetailPage";
 import ProductsPage from "./pages/ProductsPage";
@@ -160,6 +161,30 @@ function App() {
               element={
                 <ProtectedRoute>
                   <OrderCheckoutPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/payment/success"
+              element={
+                <ProtectedRoute>
+                  <PaymentSuccessPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/payment/success/:orderId"
+              element={
+                <ProtectedRoute>
+                  <PaymentSuccessPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/payment/cancelled"
+              element={
+                <ProtectedRoute>
+                  <CheckoutPage />
                 </ProtectedRoute>
               }
             />

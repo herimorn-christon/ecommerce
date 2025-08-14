@@ -1,7 +1,14 @@
+import { Plus, Save, Trash2, X } from "lucide-react";
 import React, { useEffect, useState } from "react";
+import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
+import Button from "../../components/common/Button";
 import { useAppDispatch, useAppSelector } from "../../redux/hooks";
-import { fetchCurrentTransporter } from "../../redux/slices/transporterSlice";
+import {
+  fetchCurrentTransporter,
+  updateTransporterProfile,
+} from "../../redux/slices/transporterSlice";
+import { TransportationFee } from "../../types";
 
 const TransporterProfileEditPage: React.FC = () => {
   const navigate = useNavigate();
@@ -22,6 +29,11 @@ const TransporterProfileEditPage: React.FC = () => {
     description: "",
     licenseImage: "",
   });
+
+  const [transportationFees, setTransportationFees] = useState<
+    TransportationFee[]
+  >([]);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     // Redirect if not authenticated or not a transporter
@@ -49,12 +61,27 @@ const TransporterProfileEditPage: React.FC = () => {
         description: selectedTransporter.description || "",
         licenseImage: selectedTransporter.licenseImage || "",
       });
+
+      // Populate transportation fees
+      if (
+        selectedTransporter.transportationFees &&
+        selectedTransporter.transportationFees.length > 0
+      ) {
+        setTransportationFees(selectedTransporter.transportationFees);
+      } else {
+        // Initialize with empty fee if none exist
+        setTransportationFees([
+          { startingPoint: "", destination: "", price: 0, weight: 0 },
+        ]);
+      }
     }
   }, [selectedTransporter]);
 
   // Handle input changes
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >
   ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
@@ -63,14 +90,72 @@ const TransporterProfileEditPage: React.FC = () => {
     }));
   };
 
+  // Handle transportation fee changes
+  const handleFeeChange = (
+    index: number,
+    field: keyof TransportationFee,
+    value: string | number
+  ) => {
+    setTransportationFees((prev) => {
+      const updated = [...prev];
+      updated[index] = { ...updated[index], [field]: value };
+      return updated;
+    });
+  };
+
+  // Add new transportation fee
+  const addTransportationFee = () => {
+    setTransportationFees((prev) => [
+      ...prev,
+      { startingPoint: "", destination: "", price: 0, weight: 0 },
+    ]);
+  };
+
+  // Remove transportation fee
+  const removeTransportationFee = (index: number) => {
+    setTransportationFees((prev) => {
+      const updated = [...prev];
+      // If fee has an ID, mark it for deletion
+      if (updated[index].id) {
+        updated[index] = { ...updated[index], delete: true };
+      } else {
+        // If no ID, remove from array
+        updated.splice(index, 1);
+      }
+      return updated;
+    });
+  };
+
   // Handle form submission
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // TODO: Implement the update profile functionality in transporterService.ts and transporterSlice.ts
-    // This would be similar to the getCurrentTransporter method but would be a PUT request
+    setIsSubmitting(true);
 
-    // For now, just navigate back to the profile page
-    navigate("/transporter/profile");
+    try {
+      // Prepare update data
+      const updateData = {
+        ...formData,
+        transportationFees: transportationFees.filter(
+          (fee) =>
+            // Include fees that are not marked for deletion and have valid data
+            (!fee.delete &&
+              fee.startingPoint &&
+              fee.destination &&
+              fee.price > 0 &&
+              fee.weight > 0) ||
+            // Include fees marked for deletion (to delete them on backend)
+            fee.delete
+        ),
+      };
+
+      await dispatch(updateTransporterProfile(updateData)).unwrap();
+      toast.success("Profile updated successfully!");
+      navigate("/transporter/profile");
+    } catch (error: any) {
+      toast.error(error.message || "Failed to update profile");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   if (!isAuthenticated || !isUserTransporter) return null;
@@ -100,7 +185,8 @@ const TransporterProfileEditPage: React.FC = () => {
           onSubmit={handleSubmit}
           className="bg-white rounded-lg border border-gray-200 shadow-sm p-6"
         >
-          <div className="space-y-6">
+          <div className="space-y-8">
+            {/* Business Information Section */}
             <div>
               <h2 className="text-lg font-medium text-gray-800 mb-4">
                 Business Information
@@ -149,14 +235,16 @@ const TransporterProfileEditPage: React.FC = () => {
                     >
                       Country
                     </label>
-                    <input
-                      type="text"
+                    <select
                       id="country"
                       name="country"
                       value={formData.country}
                       onChange={handleChange}
                       className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500"
-                    />
+                    >
+                      <option value="">Select country</option>
+                      <option value="Tanzania">Tanzania</option>
+                    </select>
                   </div>
 
                   <div>
@@ -166,14 +254,16 @@ const TransporterProfileEditPage: React.FC = () => {
                     >
                       Region
                     </label>
-                    <input
-                      type="text"
+                    <select
                       id="region"
                       name="region"
                       value={formData.region}
                       onChange={handleChange}
                       className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500"
-                    />
+                    >
+                      <option value="">Select region</option>
+                      <option value="Kigoma">Kigoma</option>
+                    </select>
                   </div>
 
                   <div>
@@ -232,20 +322,174 @@ const TransporterProfileEditPage: React.FC = () => {
               </div>
             </div>
 
+            {/* Transportation Fees Section */}
+            <div>
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-lg font-medium text-gray-800">
+                  Transportation Fees
+                </h2>
+                <Button
+                  type="button"
+                  onClick={addTransportationFee}
+                  variant="outline"
+                  className="flex items-center"
+                >
+                  <Plus size={16} className="mr-2" />
+                  Add Route
+                </Button>
+              </div>
+
+              <div className="space-y-4">
+                {transportationFees.map((fee, index) => (
+                  <div
+                    key={index}
+                    className={`border rounded-lg p-4 ${
+                      fee.delete ? "opacity-50 bg-red-50" : "bg-gray-50"
+                    }`}
+                  >
+                    <div className="grid grid-cols-1 md:grid-cols-5 gap-4 items-end">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Starting Point
+                        </label>
+                        <select
+                          value={fee.startingPoint}
+                          onChange={(e) =>
+                            handleFeeChange(
+                              index,
+                              "startingPoint",
+                              e.target.value
+                            )
+                          }
+                          className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500"
+                          disabled={fee.delete}
+                        >
+                          <option value="">Select starting point</option>
+                          <option value="Dar es Salaam">Dar es Salaam</option>
+                          <option value="Kigoma">Kigoma</option>
+                        </select>
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Destination
+                        </label>
+                        <select
+                          value={fee.destination}
+                          onChange={(e) =>
+                            handleFeeChange(
+                              index,
+                              "destination",
+                              e.target.value
+                            )
+                          }
+                          className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500"
+                          disabled={fee.delete}
+                        >
+                          <option value="">Select destination</option>
+                          <option value="Dar es Salaam">Dar es Salaam</option>
+                          <option value="Kigoma">Kigoma</option>
+                        </select>
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Weight (kg)
+                        </label>
+                        <input
+                          type="number"
+                          value={fee.weight}
+                          onChange={(e) =>
+                            handleFeeChange(
+                              index,
+                              "weight",
+                              parseInt(e.target.value) || 0
+                            )
+                          }
+                          className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500"
+                          placeholder="10"
+                          min="0"
+                          step="0.1"
+                          disabled={fee.delete}
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Price (TZS)
+                        </label>
+                        <input
+                          type="number"
+                          value={fee.price}
+                          onChange={(e) =>
+                            handleFeeChange(
+                              index,
+                              "price",
+                              parseInt(e.target.value) || 0
+                            )
+                          }
+                          className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500"
+                          placeholder="50000"
+                          min="0"
+                          disabled={fee.delete}
+                        />
+                      </div>
+
+                      <div className="flex items-center space-x-2">
+                        {fee.delete ? (
+                          <div className="flex items-center text-red-600 text-sm">
+                            <X size={16} className="mr-1" />
+                            Marked for deletion
+                          </div>
+                        ) : (
+                          <button
+                            type="button"
+                            onClick={() => removeTransportationFee(index)}
+                            className="flex items-center text-red-600 hover:text-red-800 p-2 hover:bg-red-50 rounded"
+                          >
+                            <Trash2 size={16} />
+                          </button>
+                        )}
+                      </div>
+                    </div>
+
+                    {fee.delete && (
+                      <div className="mt-2 text-sm text-red-600">
+                        This route will be deleted when you save changes.
+                      </div>
+                    )}
+                  </div>
+                ))}
+
+                {transportationFees.length === 0 && (
+                  <div className="text-center py-8 text-gray-500">
+                    <p>No transportation routes configured.</p>
+                    <p className="text-sm">Click "Add Route" to get started.</p>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Form Actions */}
             <div className="flex justify-end space-x-4 pt-6 border-t border-gray-200">
-              <button
+              <Button
                 type="button"
                 onClick={() => navigate("/transporter/profile")}
-                className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
+                variant="outline"
+                disabled={isSubmitting}
               >
                 Cancel
-              </button>
-              <button
+              </Button>
+              <Button
                 type="submit"
-                className="px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700"
+                variant="primary"
+                isLoading={isSubmitting}
+                disabled={isSubmitting}
+                className="flex items-center"
               >
+                <Save size={16} className="mr-2" />
                 Save Changes
-              </button>
+              </Button>
             </div>
           </div>
         </form>

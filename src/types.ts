@@ -327,6 +327,16 @@ export interface SellerEarningsSummary {
   totalPayouts: string;
 }
 
+// Transportation Fee types
+export interface TransportationFee {
+  id?: string;
+  startingPoint: string;
+  destination: string;
+  price: number;
+  weight: number; // Weight in kg
+  delete?: boolean;
+}
+
 // Transporter types
 export interface Transporter {
   id: string;
@@ -342,6 +352,19 @@ export interface Transporter {
   updatedAt: string;
   userId: string;
   user?: User;
+  transportationFees?: TransportationFee[];
+}
+
+// Transporter update request interface
+export interface TransporterUpdateRequest {
+  businessName?: string;
+  licenseImage?: string;
+  address?: string;
+  country?: string;
+  region?: string;
+  district?: string;
+  description?: string;
+  transportationFees?: TransportationFee[];
 }
 
 // Transporter order detail type

@@ -1,6 +1,6 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import transporterService from "../../services/transporterService";
-import { Transporter } from "../../types";
+import { Transporter, TransporterUpdateRequest } from "../../types";
 
 // Define the shape of a transporter order based on the API response
 interface TransporterOrderItem {
@@ -131,6 +131,22 @@ export const fetchTransporterOrders = createAsyncThunk(
   }
 );
 
+export const updateTransporterProfile = createAsyncThunk(
+  "transporters/updateProfile",
+  async (updateData: TransporterUpdateRequest, { rejectWithValue }) => {
+    try {
+      const transporter = await transporterService.updateTransporterProfile(
+        updateData
+      );
+      return transporter;
+    } catch (error: any) {
+      return rejectWithValue(
+        error.response?.data?.message || "Failed to update transporter profile"
+      );
+    }
+  }
+);
+
 const transporterSlice = createSlice({
   name: "transporter",
   initialState,
@@ -197,6 +213,19 @@ const transporterSlice = createSlice({
         state.ordersCount = action.payload.count;
       })
       .addCase(fetchTransporterOrders.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload as string;
+      })
+      // Update transporter profile
+      .addCase(updateTransporterProfile.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(updateTransporterProfile.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.selectedTransporter = action.payload;
+      })
+      .addCase(updateTransporterProfile.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload as string;
       });

@@ -1,4 +1,4 @@
-import { Transporter } from "../types";
+import { Transporter, TransporterUpdateRequest } from "../types";
 import api from "./api";
 
 interface TransporterOrdersResponse {
@@ -151,6 +151,19 @@ const transporterService = {
       return response.data;
     } catch (error) {
       console.error(`Error updating order status for order ${orderId}:`, error);
+      throw error;
+    }
+  },
+
+  // Update transporter profile
+  updateTransporterProfile: async (
+    updateData: TransporterUpdateRequest
+  ): Promise<Transporter> => {
+    try {
+      const response = await api.put("/transporters/me", updateData);
+      return response.data;
+    } catch (error) {
+      console.error("Error updating transporter profile:", error);
       throw error;
     }
   },
