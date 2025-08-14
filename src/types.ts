@@ -328,12 +328,15 @@ export interface SellerEarningsSummary {
 }
 
 // Transportation Fee types
+export type TransportationType = 'standard' | 'express';
+
 export interface TransportationFee {
   id?: string;
   startingPoint: string;
   destination: string;
   price: number;
   weight: number; // Weight in kg
+  transportationType: TransportationType;
   delete?: boolean;
 }
 

@@ -8,7 +8,7 @@ import {
   fetchCurrentTransporter,
   updateTransporterProfile,
 } from "../../redux/slices/transporterSlice";
-import { TransportationFee } from "../../types";
+import { TransportationFee, TransportationType } from "../../types";
 
 const TransporterProfileEditPage: React.FC = () => {
   const navigate = useNavigate();
@@ -71,7 +71,7 @@ const TransporterProfileEditPage: React.FC = () => {
       } else {
         // Initialize with empty fee if none exist
         setTransportationFees([
-          { startingPoint: "", destination: "", price: 0, weight: 0 },
+          { startingPoint: "", destination: "", price: 0, weight: 0, transportationType: 'standard' },
         ]);
       }
     }
@@ -107,7 +107,7 @@ const TransporterProfileEditPage: React.FC = () => {
   const addTransportationFee = () => {
     setTransportationFees((prev) => [
       ...prev,
-      { startingPoint: "", destination: "", price: 0, weight: 0 },
+      { startingPoint: "", destination: "", price: 0, weight: 0, transportationType: 'standard' },
     ]);
   };
 
@@ -347,7 +347,7 @@ const TransporterProfileEditPage: React.FC = () => {
                       fee.delete ? "opacity-50 bg-red-50" : "bg-gray-50"
                     }`}
                   >
-                    <div className="grid grid-cols-1 md:grid-cols-5 gap-4 items-end">
+                    <div className="grid grid-cols-1 md:grid-cols-6 gap-4 items-end">
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">
                           Starting Point
@@ -389,6 +389,27 @@ const TransporterProfileEditPage: React.FC = () => {
                           <option value="">Select destination</option>
                           <option value="Dar es Salaam">Dar es Salaam</option>
                           <option value="Kigoma">Kigoma</option>
+                        </select>
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Transportation Type
+                        </label>
+                        <select
+                          value={fee.transportationType}
+                          onChange={(e) =>
+                            handleFeeChange(
+                              index,
+                              "transportationType",
+                              e.target.value as 'standard' | 'express'
+                            )
+                          }
+                          className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500"
+                          disabled={fee.delete}
+                        >
+                          <option value="standard">Standard</option>
+                          <option value="express">Express</option>
                         </select>
                       </div>
 
