@@ -1,6 +1,6 @@
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import sellerService from "../../services/sellerService";
-import { SellerProfile, SellerProfileFormData } from "../../types";
+import { LicenseData, SellerProfile, SellerProfileFormData } from "../../types";
 
 interface SellerState {
   profile: SellerProfile | null;
@@ -58,6 +58,23 @@ export const updateSellerProfile = createAsyncThunk(
     } catch (error: any) {
       return rejectWithValue(
         error.response?.data?.message || "Failed to update seller profile"
+      );
+    }
+  }
+);
+
+export const submitSellerLicense = createAsyncThunk(
+  "seller/submitLicense",
+  async (
+    { sellerId, licenseData }: { sellerId: string; licenseData: LicenseData },
+    { rejectWithValue }
+  ) => {
+    try {
+      const response = await sellerService.submitLicense(sellerId, licenseData);
+      return response;
+    } catch (error: any) {
+      return rejectWithValue(
+        error.response?.data?.message || "Failed to submit license information"
       );
     }
   }
@@ -132,6 +149,20 @@ const sellerSlice = createSlice({
         }
       )
       .addCase(updateSellerProfile.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload as string;
+      })
+
+      // Submit seller license
+      .addCase(submitSellerLicense.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(submitSellerLicense.fulfilled, (state) => {
+        state.isLoading = false;
+        // License submission successful, profile update handled separately
+      })
+      .addCase(submitSellerLicense.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload as string;
       });

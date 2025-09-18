@@ -36,6 +36,15 @@ export interface User {
   updatedAt: string;
 }
 
+// License types
+export interface LicenseData {
+  license: string; // URL to license document
+  licenseNumber: string;
+  issueDate: string; // ISO date string
+  expireDate: string; // ISO date string
+  licenseType: string; // "business" | "trading" | "professional"
+}
+
 // Seller types
 export interface SellerProfile {
   id: string;
@@ -53,6 +62,8 @@ export interface SellerProfile {
   district?: string;
   createdAt?: string;
   userId: string;
+  // License information
+  license?: LicenseData;
 }
 
 export interface SellerProfileFormData {
@@ -69,6 +80,12 @@ export interface SellerProfileFormData {
   companyId?: string;
   associateId?: string;
   district?: string;
+  // License fields
+  license?: string;
+  licenseNumber?: string;
+  issueDate?: string;
+  expireDate?: string;
+  licenseType?: string;
 }
 
 // Authentication types

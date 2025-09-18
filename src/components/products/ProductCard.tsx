@@ -82,7 +82,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
 
           <div className="flex justify-between items-center">
             <span className="text-blue-700 font-bold">
-              TZS {Number(product.unitPrice).toLocaleString()}
+              TZS {Number(product.unitPrice).toLocaleString()} per kg
             </span>
 
             <Button

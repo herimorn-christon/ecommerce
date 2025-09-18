@@ -1,4 +1,4 @@
-import { SellerProfile, SellerProfileFormData } from "../types";
+import { LicenseData, SellerProfile, SellerProfileFormData } from "../types";
 import api from "./api";
 
 export const sellerService = {
@@ -57,6 +57,20 @@ export const sellerService = {
       },
     });
 
+    return response.data;
+  },
+
+  /**
+   * Submit license information for a seller
+   * @param sellerId The seller ID
+   * @param licenseData The license data to submit
+   * @returns The response from the server
+   */
+  submitLicense: async (sellerId: string, licenseData: LicenseData) => {
+    const response = await api.post(
+      `/sellers/${sellerId}/license`,
+      licenseData
+    );
     return response.data;
   },
 };

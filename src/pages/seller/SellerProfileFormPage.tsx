@@ -3,7 +3,10 @@ import React, { useState } from "react";
 import toast from "react-hot-toast";
 import { Link, useNavigate } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../../redux/hooks";
-import { createSellerProfile } from "../../redux/slices/sellerSlice";
+import {
+  createSellerProfile,
+  submitSellerLicense,
+} from "../../redux/slices/sellerSlice";
 import sellerService from "../../services/sellerService";
 import { SellerProfileFormData } from "../../types";
 
@@ -24,15 +27,24 @@ const SellerProfileFormPage: React.FC = () => {
     nationalId: "",
     frontNationalId: "",
     backNationalId: "",
+    // License fields
+    license: "",
+    licenseNumber: "",
+    issueDate: "",
+    expireDate: "",
+    licenseType: "business",
   });
 
   // File upload states
   const [frontIdFile, setFrontIdFile] = useState<File | null>(null);
   const [backIdFile, setBackIdFile] = useState<File | null>(null);
+  const [licenseFile, setLicenseFile] = useState<File | null>(null);
   const [uploadingFront, setUploadingFront] = useState(false);
   const [uploadingBack, setUploadingBack] = useState(false);
+  const [uploadingLicense, setUploadingLicense] = useState(false);
   const [frontIdUploaded, setFrontIdUploaded] = useState(false);
   const [backIdUploaded, setBackIdUploaded] = useState(false);
+  const [licenseUploaded, setLicenseUploaded] = useState(false);
 
   // Form submission state
   const [submitting, setSubmitting] = useState(false);
@@ -65,6 +77,13 @@ const SellerProfileFormPage: React.FC = () => {
   const handleBackIdSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       setBackIdFile(e.target.files[0]);
+    }
+  };
+
+  // Handle file selection for license
+  const handleLicenseSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      setLicenseFile(e.target.files[0]);
     }
   };
 
@@ -136,6 +155,40 @@ const SellerProfileFormPage: React.FC = () => {
     }
   };
 
+  // Handle license upload
+  const handleLicenseUpload = async () => {
+    if (!licenseFile) {
+      toast.error("Please select a license file first");
+      return;
+    }
+
+    setUploadingLicense(true);
+
+    try {
+      const fileName = `license_${Date.now()}_${licenseFile.name.replace(
+        /\s+/g,
+        "_"
+      )}`;
+      const result = await sellerService.uploadFile(licenseFile, fileName);
+
+      if (result?.data?.url) {
+        setForm({
+          ...form,
+          license: result?.data?.url,
+        });
+        setLicenseUploaded(true);
+        toast.success("License document uploaded successfully");
+      } else {
+        throw new Error("Failed to upload license");
+      }
+    } catch (error) {
+      console.error("Error uploading license:", error);
+      toast.error("Failed to upload license document");
+    } finally {
+      setUploadingLicense(false);
+    }
+  };
+
   // Submit the form
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -154,11 +207,49 @@ const SellerProfileFormPage: React.FC = () => {
       return;
     }
 
+    // License validation (only if any license field is filled)
+    const hasLicenseData =
+      form.license || form.licenseNumber || form.issueDate || form.expireDate;
+    if (
+      hasLicenseData &&
+      (!form.license ||
+        !form.licenseNumber ||
+        !form.issueDate ||
+        !form.expireDate ||
+        !form.licenseType)
+    ) {
+      toast.error("Please complete all license information fields");
+      return;
+    }
+
     setSubmitting(true);
 
     try {
-      await dispatch(createSellerProfile(form)).unwrap();
-      toast.success("Seller profile created successfully!");
+      // Create seller profile first
+      const createdProfile = await dispatch(createSellerProfile(form)).unwrap();
+
+      // If license data is provided, submit it separately
+      if (hasLicenseData && createdProfile.id) {
+        const licenseData = {
+          license: form.license!,
+          licenseNumber: form.licenseNumber!,
+          issueDate: form.issueDate!,
+          expireDate: form.expireDate!,
+          licenseType: form.licenseType!,
+        };
+
+        await dispatch(
+          submitSellerLicense({
+            sellerId: createdProfile.id,
+            licenseData,
+          })
+        ).unwrap();
+
+        toast.success("Seller profile and license created successfully!");
+      } else {
+        toast.success("Seller profile created successfully!");
+      }
+
       navigate("/seller/dashboard");
     } catch (error: any) {
       toast.error(error?.message || "Failed to create seller profile");
@@ -607,6 +698,182 @@ const SellerProfileFormPage: React.FC = () => {
                     <p className="mt-1 text-xs text-gray-500">
                       Clear image of the back side of your national ID card
                     </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* License Information (Optional) */}
+              <div>
+                <h2 className="text-lg font-medium text-gray-900 mb-4">
+                  Business License{" "}
+                  <span className="text-gray-500">(Optional)</span>
+                </h2>
+                <div className="space-y-6">
+                  {/* License Document Upload */}
+                  <div>
+                    <div className="flex justify-between">
+                      <label
+                        htmlFor="license"
+                        className="block text-sm font-medium text-gray-700"
+                      >
+                        License Document
+                      </label>
+                      {form.license && (
+                        <span className="text-xs text-green-600 flex items-center">
+                          <CheckCircle className="h-3 w-3 mr-1" />
+                          Uploaded
+                        </span>
+                      )}
+                    </div>
+                    <div className="mt-1 flex items-center">
+                      <input
+                        type="file"
+                        id="license"
+                        accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
+                        onChange={handleLicenseSelect}
+                        className="sr-only"
+                        disabled={licenseUploaded}
+                      />
+                      <label
+                        htmlFor="license"
+                        className={`flex-1 relative cursor-pointer bg-white py-2 px-3 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none ${
+                          licenseUploaded ? "opacity-50 cursor-not-allowed" : ""
+                        }`}
+                      >
+                        <span>
+                          {licenseFile?.name || "Select license document..."}
+                        </span>
+                      </label>
+                      <button
+                        type="button"
+                        disabled={
+                          !licenseFile || uploadingLicense || licenseUploaded
+                        }
+                        onClick={handleLicenseUpload}
+                        className={`ml-3 inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white ${
+                          !licenseFile || uploadingLicense || licenseUploaded
+                            ? "bg-gray-300 cursor-not-allowed"
+                            : "bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+                        }`}
+                      >
+                        {uploadingLicense ? (
+                          <Loader2 className="h-4 w-4 mr-1 animate-spin" />
+                        ) : (
+                          <Upload className="h-4 w-4 mr-1" />
+                        )}
+                        Upload
+                      </button>
+                    </div>
+                    <p className="mt-1 text-xs text-gray-500">
+                      Upload your business license document (PDF, DOC, or image
+                      file)
+                    </p>
+                  </div>
+
+                  {/* License Details */}
+                  <div className="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-2">
+                    <div className="sm:col-span-1">
+                      <label
+                        htmlFor="licenseNumber"
+                        className="block text-sm font-medium text-gray-700"
+                      >
+                        License Number
+                      </label>
+                      <div className="mt-1">
+                        <input
+                          type="text"
+                          id="licenseNumber"
+                          name="licenseNumber"
+                          value={form.licenseNumber}
+                          onChange={handleChange}
+                          className="shadow-sm focus:ring-primary-500 focus:border-primary-500 block w-full sm:text-sm border-gray-300 rounded-md p-2 border"
+                          placeholder="e.g., LIC-2023-00123"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="sm:col-span-1">
+                      <label
+                        htmlFor="licenseType"
+                        className="block text-sm font-medium text-gray-700"
+                      >
+                        License Type
+                      </label>
+                      <div className="mt-1">
+                        <select
+                          id="licenseType"
+                          name="licenseType"
+                          value={form.licenseType}
+                          onChange={handleChange}
+                          className="shadow-sm focus:ring-primary-500 focus:border-primary-500 block w-full sm:text-sm border-gray-300 rounded-md p-2 border"
+                        >
+                          <option value="business">Business License</option>
+                          <option value="trading">Trading License</option>
+                          <option value="professional">
+                            Professional License
+                          </option>
+                        </select>
+                      </div>
+                    </div>
+
+                    <div className="sm:col-span-1">
+                      <label
+                        htmlFor="issueDate"
+                        className="block text-sm font-medium text-gray-700"
+                      >
+                        Issue Date
+                      </label>
+                      <div className="mt-1">
+                        <input
+                          type="date"
+                          id="issueDate"
+                          name="issueDate"
+                          value={form.issueDate}
+                          onChange={handleChange}
+                          className="shadow-sm focus:ring-primary-500 focus:border-primary-500 block w-full sm:text-sm border-gray-300 rounded-md p-2 border"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="sm:col-span-1">
+                      <label
+                        htmlFor="expireDate"
+                        className="block text-sm font-medium text-gray-700"
+                      >
+                        Expiry Date
+                      </label>
+                      <div className="mt-1">
+                        <input
+                          type="date"
+                          id="expireDate"
+                          name="expireDate"
+                          value={form.expireDate}
+                          onChange={handleChange}
+                          className="shadow-sm focus:ring-primary-500 focus:border-primary-500 block w-full sm:text-sm border-gray-300 rounded-md p-2 border"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="bg-gray-50 p-4 rounded-md">
+                    <div className="flex">
+                      <div className="flex-shrink-0">
+                        <Info className="h-5 w-5 text-gray-400" />
+                      </div>
+                      <div className="ml-3">
+                        <h3 className="text-sm font-medium text-gray-800">
+                          License Information
+                        </h3>
+                        <div className="mt-2 text-sm text-gray-600">
+                          <p>
+                            Adding license information helps build trust with
+                            customers and may be required for certain product
+                            categories. This section is optional but recommended
+                            for business credibility.
+                          </p>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>

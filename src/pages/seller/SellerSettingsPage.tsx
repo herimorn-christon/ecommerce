@@ -94,6 +94,72 @@ const SellerSettingsPage: React.FC = () => {
                     </div>
                   </div>
                 </div>
+
+                {/* License Information */}
+                {profile.license && (
+                  <div>
+                    <h3 className="text-sm font-medium text-gray-500">
+                      License Information
+                    </h3>
+                    <div className="mt-3 space-y-4">
+                      <div>
+                        <div className="text-xs text-gray-500">
+                          License Number
+                        </div>
+                        <div className="text-sm font-medium">
+                          {profile.license.licenseNumber}
+                        </div>
+                      </div>
+                      <div>
+                        <div className="text-xs text-gray-500">
+                          License Type
+                        </div>
+                        <div className="text-sm font-medium capitalize">
+                          {profile.license.licenseType.replace("_", " ")}
+                        </div>
+                      </div>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <div className="text-xs text-gray-500">
+                            Issue Date
+                          </div>
+                          <div className="text-sm font-medium">
+                            {new Date(
+                              profile.license.issueDate
+                            ).toLocaleDateString()}
+                          </div>
+                        </div>
+                        <div>
+                          <div className="text-xs text-gray-500">
+                            Expiry Date
+                          </div>
+                          <div className="text-sm font-medium">
+                            {new Date(
+                              profile.license.expireDate
+                            ).toLocaleDateString()}
+                          </div>
+                        </div>
+                      </div>
+                      {profile.license.license && (
+                        <div>
+                          <div className="text-xs text-gray-500">
+                            License Document
+                          </div>
+                          <div className="text-sm">
+                            <a
+                              href={profile.license.license}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-primary-600 hover:text-primary-700 underline"
+                            >
+                              View License Document
+                            </a>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
               </div>
 
               <div className="pt-5 border-t border-gray-200">
