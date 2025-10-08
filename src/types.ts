@@ -16,6 +16,7 @@ export interface PaginationParams {
   take?: number;
   search?: string;
   categoryId?: string;
+  location?: "local" | "international";
 }
 
 export interface WishlistItem {

@@ -9,6 +9,7 @@ import {
   User,
 } from "lucide-react";
 import React, { useEffect, useState } from "react";
+import toast from "react-hot-toast";
 import { Link, useNavigate } from "react-router-dom";
 import CartItem from "../components/cart/CartItem";
 import CartSummary from "../components/cart/CartSummary";
@@ -39,6 +40,9 @@ const ProfilePage: React.FC = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [ordersPerPage, setOrdersPerPage] = useState(5);
   const [searchTerm, setSearchTerm] = useState("");
+  const [cancellingOrderId, setCancellingOrderId] = useState<string | null>(
+    null
+  );
 
   // Wishlist state
   const [wishlistProducts, setWishlistProducts] = useState<Product[]>([]);
@@ -91,13 +95,32 @@ const ProfilePage: React.FC = () => {
       navigate("/");
     }
   };
-  const handleCancel = (orderId: string) => {
+
+  // Helper function to determine if an order can be cancelled
+  const canCancelOrder = (orderStatus: string): boolean => {
+    // Only allow cancellation for orders that are pending or processing
+    // Once an order is delivered, shipped, or already cancelled, it cannot be cancelled
+    const cancellableStatuses = ["pending", "processing"];
+    return cancellableStatuses.includes(orderStatus.toLowerCase());
+  };
+
+  const handleCancel = async (orderId: string) => {
     console.log("the cancelled order id is", orderId);
     const confirmed = window.confirm(
-      "Are you sure you want to cancel this order?"
+      "Are you sure you want to cancel this order? This action cannot be undone."
     );
     if (confirmed) {
-      dispatch(cancelOrder(orderId));
+      setCancellingOrderId(orderId);
+      try {
+        await dispatch(cancelOrder(orderId)).unwrap();
+        toast.success("Order cancelled successfully!");
+      } catch (error: any) {
+        toast.error(
+          error.message || "Failed to cancel order. Please try again."
+        );
+      } finally {
+        setCancellingOrderId(null);
+      }
     }
   };
 
@@ -116,6 +139,7 @@ const ProfilePage: React.FC = () => {
     const product = wishlistProducts.find((p) => p.id === productId);
     if (product) {
       dispatch(addToCart({ product, quantity: 1 }));
+      toast.success(`${product.name} added to cart!`);
     }
   };
 
@@ -412,6 +436,29 @@ const ProfilePage: React.FC = () => {
                               </div>
                             </div>
                           </div>
+
+                          {/* Cancel button for recent orders */}
+                          <div className="mt-3 flex justify-between items-center">
+                            <Link
+                              to={`/orders/${order.id}`}
+                              className="text-blue-600 hover:text-blue-800 font-medium text-sm"
+                            >
+                              View Details
+                            </Link>
+                            {canCancelOrder(order.status) && (
+                              <Button
+                                onClick={() => handleCancel(order.id)}
+                                variant="outline"
+                                size="small"
+                                className="text-red-600 border-red-300 hover:bg-red-50"
+                                disabled={cancellingOrderId === order.id}
+                              >
+                                {cancellingOrderId === order.id
+                                  ? "Cancelling..."
+                                  : "Cancel Order"}
+                              </Button>
+                            )}
+                          </div>
                         </div>
                       ))}
                     </div>
@@ -529,6 +576,19 @@ const ProfilePage: React.FC = () => {
                         >
                           View Details
                         </Link>
+                        {canCancelOrder(order.status) && (
+                          <Button
+                            onClick={() => handleCancel(order.id)}
+                            variant="outline"
+                            size="small"
+                            className="text-red-600 border-red-300 hover:bg-red-50"
+                            disabled={cancellingOrderId === order.id}
+                          >
+                            {cancellingOrderId === order.id
+                              ? "Cancelling..."
+                              : "Cancel Order"}
+                          </Button>
+                        )}
                       </div>
                     </div>
                   ))}

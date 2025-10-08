@@ -53,6 +53,9 @@ const productService = {
         if (params?.search) {
           queryParams.append("search", params.search);
         }
+        if (params?.location) {
+          queryParams.append("location", params.location);
+        }
 
         url = `/products${
           queryParams.toString() ? `?${queryParams.toString()}` : ""
@@ -147,6 +150,9 @@ const productService = {
         }
         if (params?.search) {
           queryParams.append("search", params.search);
+        }
+        if (params?.location) {
+          queryParams.append("location", params.location);
         }
 
         url = `/products${

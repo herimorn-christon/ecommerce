@@ -13,6 +13,7 @@ import logo from "../../assets/logo/2.svg";
 import { useAppDispatch, useAppSelector } from "../../redux/hooks";
 import { logout } from "../../redux/slices/authSlice";
 import { searchProducts } from "../../redux/slices/productsSlice";
+import LocationIndicator from "../common/LocationIndicator";
 
 const Header: React.FC = () => {
   const dispatch = useAppDispatch();
@@ -131,6 +132,14 @@ const Header: React.FC = () => {
                 <span>Transporter</span>
               </Link>
             )}
+
+            {/* Location indicator */}
+            <div className="text-white/90">
+              <LocationIndicator
+                className="text-white/80"
+                showRefresh={false}
+              />
+            </div>
 
             {/* Always visible icons */}
             <Link

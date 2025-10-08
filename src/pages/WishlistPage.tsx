@@ -1,5 +1,6 @@
 import { ArrowLeft, Heart, ShoppingCart, Trash2 } from "lucide-react";
 import React, { useEffect, useState } from "react";
+import toast from "react-hot-toast";
 import { Link } from "react-router-dom";
 import Button from "../components/common/Button";
 import EmptyState from "../components/common/EmptyState";
@@ -81,6 +82,7 @@ const WishlistPage: React.FC = () => {
     const product = wishlistProducts.find((p) => p.id === productId);
     if (product) {
       dispatch(addToCart({ product, quantity: 1 }));
+      toast.success(`${product.name} added to cart!`);
     }
   };
 

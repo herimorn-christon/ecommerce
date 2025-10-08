@@ -44,9 +44,9 @@ const initialState: ProductsState = {
 // Async thunks for products
 export const fetchProducts = createAsyncThunk(
   "products/fetchProducts",
-  async (_, { rejectWithValue }) => {
+  async (params: PaginationParams = {}, { rejectWithValue }) => {
     try {
-      const result = await productService.getProducts();
+      const result = await productService.getProducts(params);
       console.log("Fetched products:", result);
       return result;
     } catch (error: any) {
@@ -63,6 +63,7 @@ export const fetchProductsPaginated = createAsyncThunk(
   "products/fetchProductsPaginated",
   async (params: PaginationParams = {}, { rejectWithValue }) => {
     try {
+      console.log("Fetching products with params:", params);
       const result = await productService.getProductsPaginated(params);
       console.log("Fetched products paginated:", result);
       return result;

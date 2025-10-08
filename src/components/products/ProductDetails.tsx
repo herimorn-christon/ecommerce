@@ -7,6 +7,7 @@ import {
   Truck,
 } from "lucide-react";
 import React, { useState } from "react";
+import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 import { useAppDispatch } from "../../redux/hooks";
 import { addToCart } from "../../redux/slices/cartSlice";
@@ -34,6 +35,11 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({
   const handleAddToCart = () => {
     if (product) {
       dispatch(addToCart({ product, quantity }));
+      toast.success(
+        `${quantity} ${quantity === 1 ? "item" : "items"} of ${
+          product.name
+        } added to cart!`
+      );
       navigate("/cart");
     }
   };

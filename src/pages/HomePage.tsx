@@ -3,6 +3,7 @@ import React, { useEffect } from "react";
 import { Link } from "react-router-dom";
 import LoadingSpinner from "../components/common/LoadingSpinner";
 import ProductCard from "../components/products/ProductCard";
+import { useLocation } from "../hooks/useLocation";
 import { useAppDispatch, useAppSelector } from "../redux/hooks";
 import {
   fetchCategories,
@@ -15,10 +16,20 @@ const HomePage: React.FC = () => {
     (state) => state.products
   );
 
+  // Get user location
+  const { locationStatus, isLoading: locationLoading } = useLocation();
+
   useEffect(() => {
-    dispatch(fetchProductsPaginated({ take: 8 })); // Get only 8 products for featured section
     dispatch(fetchCategories());
   }, [dispatch]);
+
+  // Load products when location is available
+  useEffect(() => {
+    if (!locationLoading) {
+      console.log("Loading featured products with location:", locationStatus);
+      dispatch(fetchProductsPaginated({ take: 8, location: locationStatus })); // Get only 8 products for featured section
+    }
+  }, [dispatch, locationLoading, locationStatus]);
 
   // Get featured products (we'll just use the first 8 for now)
   // Ensure products is an array before calling slice to prevent runtime errors
@@ -33,7 +44,7 @@ const HomePage: React.FC = () => {
           <div className="absolute inset-0 bg-primary-800 opacity-70"></div>
           <img
             src="fish.jpg"
-            alt="Fish Market"
+            alt="TanFishMarket"
             className="w-full h-full object-cover"
           />
         </div>

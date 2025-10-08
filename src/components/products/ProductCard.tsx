@@ -1,5 +1,6 @@
 import { ShoppingCart } from "lucide-react";
 import React from "react";
+import toast from "react-hot-toast";
 import { Link, useNavigate } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../../redux/hooks";
 import { addToCart } from "../../redux/slices/cartSlice";
@@ -28,6 +29,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
     }
 
     dispatch(addToCart({ product, quantity: 1 }));
+    toast.success(`${product.name} added to cart!`);
   };
 
   const productImage =

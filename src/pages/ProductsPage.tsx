@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import Pagination from "../components/common/Pagination";
 import CategoryFilter from "../components/products/CategoryFilter";
 import ProductGrid from "../components/products/ProductGrid";
+import { useLocation } from "../hooks/useLocation";
 import { useAppDispatch, useAppSelector } from "../redux/hooks";
 import {
   fetchCategories,
@@ -27,6 +28,9 @@ const ProductsPage: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
 
+  // Get user location
+  const { locationStatus, isLoading: locationLoading } = useLocation();
+
   // Calculate pagination values
   const totalPages = Math.ceil(pagination.total / itemsPerPage);
 
@@ -36,6 +40,11 @@ const ProductsPage: React.FC = () => {
     search?: string,
     categoryId?: string
   ) => {
+    // Don't load products if location is still loading
+    if (locationLoading) {
+      return;
+    }
+
     const skip = (page - 1) * itemsPerPage;
 
     // Get the category ID to use
@@ -46,6 +55,7 @@ const ProductsPage: React.FC = () => {
       take: itemsPerPage,
       search: search || debouncedSearchTerm || undefined,
       categoryId: targetCategoryId,
+      location: locationStatus,
       selectedCategory,
     });
 
@@ -55,6 +65,7 @@ const ProductsPage: React.FC = () => {
         take: itemsPerPage,
         search: search || debouncedSearchTerm || undefined,
         categoryId: targetCategoryId || undefined,
+        location: locationStatus,
       })
     );
   };
@@ -79,8 +90,14 @@ const ProductsPage: React.FC = () => {
   // Fetch categories and initial products on mount
   useEffect(() => {
     dispatch(fetchCategories());
-    loadProducts(1);
   }, []);
+
+  // Load products when location is available
+  useEffect(() => {
+    if (!locationLoading) {
+      loadProducts(1);
+    }
+  }, [locationLoading, locationStatus]);
 
   // Handle page change
   const handlePageChange = (page: number) => {

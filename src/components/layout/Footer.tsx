@@ -31,7 +31,7 @@ const Footer: React.FC = () => {
                 alt="TanfishMarket Logo"
                 className="h-8 w-8 filter brightness-0 invert"
               />
-              <span className="text-xl font-bold">Fish Market</span>
+              <span className="text-xl font-bold">TanFishMarket</span>
             </div>
             <p className="text-blue-200 mb-4">
               The premier online marketplace for fresh, high-quality fish and
@@ -174,7 +174,8 @@ const Footer: React.FC = () => {
 
         <div className="border-t border-blue-800 mt-8 pt-6">
           <p className="text-center text-blue-300">
-            &copy; {new Date().getFullYear()} Fish Market. All rights reserved.
+            &copy; {new Date().getFullYear()} TanFishMarket. All rights
+            reserved.
           </p>
         </div>
       </div>
