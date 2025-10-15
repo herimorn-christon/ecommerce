@@ -9,6 +9,7 @@ import {
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
 import logo from "../../assets/logo/2.svg";
+import PartnerLogos from "../common/PartnerLogos";
 
 const Footer: React.FC = () => {
   // Check if we're in the seller layout
@@ -170,6 +171,11 @@ const Footer: React.FC = () => {
               </li>
             </ul>
           </div>
+        </div>
+
+        {/* Partner Logos Section */}
+        <div className="mt-12">
+          <PartnerLogos />
         </div>
 
         <div className="border-t border-blue-800 mt-8 pt-6">
